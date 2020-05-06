@@ -19,27 +19,57 @@ namespace PatreonClient
             _client = client;
         }
 
-        public UserRequestBuilder GetIdentity() => new UserRequestBuilder(this);
-        public CampaignsRequestBuilder GetCampaigns() => new CampaignsRequestBuilder(this);
-        public CampaignRequestBuilder GetCampaign(string campaignId) => new CampaignRequestBuilder(this, campaignId);
-        public MemberRequestBuilder GetMember(string memberId) => new MemberRequestBuilder(this, memberId);
-        public MembersRequestBuilder GetMembers(string campaignId) => new MembersRequestBuilder(this, campaignId);
+        public UserRequestBuilder Identity => new UserRequestBuilder(this);
+        public CampaignRequestBuilder Campaigns => new CampaignRequestBuilder(this);
+        public MemberRequestBuilder Members => new MemberRequestBuilder(this);
 
-        public async Task<T> SendAsync<T, TAttr>(string url)
-            where T : PatreonResponseBase<TAttr>
+        private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        public async Task<PatreonResponse<T>> GetSingle<T>(string url)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             var response = await _client.SendAsync(request);
 
             var content = await response.Content.ReadAsStringAsync();
 
-            Console.WriteLine(content);
+            var result = JsonSerializer.Deserialize<PatreonResponse<T>>(content, JsonSerializerOptions);
 
-            var result = JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            });
+            Do(content, (element, type, id) => TryAddRelationship(element, type, id, result.Data.Relationships));
 
+            return result;
+        }
+
+        public async Task<PatreonCollectionResponse<T>> GetCollection<T>(string url)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var response = await _client.SendAsync(request);
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<PatreonCollectionResponse<T>>(content, JsonSerializerOptions);
+
+            Do(content,
+               (element, type, id) =>
+               {
+                   foreach (var d in result.Data)
+                   {
+                       if (TryAddRelationship(element, type, id, d.Relationships))
+                       {
+                           break;
+                       }
+                   }
+               });
+
+            return result;
+        }
+
+        private delegate void AddToAttribute(string element, string type, string id);
+
+        private void Do(string content, AddToAttribute addToAttribute)
+        {
             var doc = JsonDocument.Parse(Encoding.UTF8.GetBytes(content));
 
             var obj = (IEnumerable<JsonProperty>) doc.RootElement.EnumerateObject();
@@ -50,30 +80,51 @@ namespace PatreonClient
             foreach (var el in array)
             {
                 var type = el.EnumerateObject().FirstOrDefault(x => x.Name == "type").Value.ToString();
+                var id = el.EnumerateObject().FirstOrDefault(x => x.Name == "id").Value.ToString();
+                addToAttribute(el.ToString(), type, id);
+            }
+        }
 
-                if (type == "campaign")
-                {
-                    result.Includes.Add("campaign",
-                                        JsonSerializer.Deserialize<PatreonData<CampaignAttributes>>(
-                                            el.ToString(), new JsonSerializerOptions
-                                            {
-                                                PropertyNameCaseInsensitive
-                                                    = true
-                                            }));
-                }
-                else if (type == "user")
-                {
-                    result.Includes.Add("user",
-                                        JsonSerializer.Deserialize<PatreonData<UserAttributes>>(
-                                            el.ToString(), new JsonSerializerOptions
-                                            {
-                                                PropertyNameCaseInsensitive
-                                                    = true
-                                            }));
-                }
+        private static bool TryAddRelationship(
+            string jsonElement,
+            string type,
+            string id,
+            Relationships relationships)
+        {
+            if (relationships == null) return false;
+
+            if (type.Equals(nameof(Relationships.Campaign), StringComparison.InvariantCultureIgnoreCase)
+                && relationships.Campaign != null
+                && relationships.Campaign.Data.Id.Equals(id))
+            {
+                relationships.Campaign.Data =
+                    JsonSerializer.Deserialize<PatreonData<CampaignAttributes>>(jsonElement, JsonSerializerOptions);
+
+                return true;
             }
 
-            return result;
+            if (type.Equals(nameof(Relationships.User), StringComparison.InvariantCultureIgnoreCase)
+                && relationships.User != null
+                && relationships.User.Data.Id.Equals(id))
+            {
+                relationships.User.Data =
+                    JsonSerializer.Deserialize<PatreonData<UserAttributes>>(jsonElement, JsonSerializerOptions);
+
+                return true;
+            }
+
+
+            if (type.Equals(nameof(Relationships.Creator), StringComparison.InvariantCultureIgnoreCase)
+                && relationships.Creator != null
+                && relationships.Creator.Data.Id.Equals(id))
+            {
+                relationships.Creator.Data =
+                    JsonSerializer.Deserialize<PatreonData<UserAttributes>>(jsonElement, JsonSerializerOptions);
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

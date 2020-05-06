@@ -3,39 +3,34 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using PatreonClient.Models;
+using PatreonClient.Models.Attributes;
 
 namespace PatreonClient
 {
-    public abstract class RequestBuilderBase<TResponse, TAttribute>
-        where TResponse : PatreonResponseBase<TAttribute>
+    public abstract class RequestBuilderBase<T>
     {
         private readonly PatreonClient _client;
-        private readonly string Url;
-        private List<Field> Fields { get;  } = new List<Field>();
-        private List<string> Includes { get;  } = new List<string>();
+        private List<Field> Fields { get; } = new List<Field>();
+        private List<string> Includes { get; } = new List<string>();
 
-        protected RequestBuilderBase(PatreonClient client, string url)
+        protected RequestBuilderBase(PatreonClient client)
         {
             // todo null check
             _client = client;
-            Url = url;
         }
 
-        public void SelectFields<T>(string fieldName, Expression<Func<T, object>> selector)
+        public void SelectFields<TAttr>(string fieldName, Expression<Func<TAttr, object>> selector)
         {
             Fields.Add(new Field(fieldName, selector));
         }
 
-        public void Include<T>(
-            string fieldName,
-            string includeName,
-            Expression<Func<T, object>> selector)
+        public void Include<TAttr>(string fieldName, string includeName, Expression<Func<TAttr, object>> selector)
         {
             Fields.Add(new Field(fieldName, selector));
             Includes.Add(includeName);
         }
 
-        private string BuildUrl()
+        private string BuildUrl(string url)
         {
             var result = "";
             var hasInclude = Includes.Count > 0;
@@ -52,12 +47,17 @@ namespace PatreonClient
                 ampersand = true;
             }
 
-            return string.Concat(Url, result);
+            return string.Concat(url, result);
         }
 
-        public Task<TResponse> Call()
+        public Task<PatreonResponse<T>> GetSingle(string url)
         {
-            return _client.SendAsync<TResponse, TAttribute>(BuildUrl());
+            return _client.GetSingle<T>(BuildUrl(url));
+        }
+
+        public Task<PatreonCollectionResponse<T>> GetCollection(string url)
+        {
+            return _client.GetCollection<T>(BuildUrl(url));
         }
     }
 }
