@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
-using PatreonClient.Models.Attributes;
+using System.Text.Json.Serialization;
 
 namespace PatreonClient.Models
 {
     public class PatreonCollectionResponse<T>
     {
-        public IEnumerable<PatreonData<T>> Data { get; set; }
-        public Meta Meta { get; set; }
+        [JsonPropertyName("data")] public IEnumerable<PatreonData<T>> Data { get; set; }
+        [JsonPropertyName("meta")] public Meta Meta { get; set; }
+        [JsonPropertyName("type")] public string Type { get; set; }
     }
 }

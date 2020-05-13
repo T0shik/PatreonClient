@@ -6,35 +6,35 @@ using PatreonClient.Models.Attributes;
 
 namespace PatreonClient
 {
-    public class MemberRequestBuilder : RequestBuilderBase<MemberAttributes>
+    public class MemberRequestBuilder : RequestBuilderBase<Member>
     {
         public MemberRequestBuilder(PatreonClient client)
             : base(client) { }
 
-        public MemberRequestBuilder SelectFields(Expression<Func<MemberAttributes, object>> selector)
+        public MemberRequestBuilder Fields(Expression<Func<Member, object>> selector = null)
         {
-            SelectFields("member", selector);
+            SelectFields(selector);
             return this;
         }
 
-        public MemberRequestBuilder IncludeUser(Expression<Func<UserAttributes, object>> selector)
+        public MemberRequestBuilder IncludeUser(Expression<Func<User, object>> selector)
         {
-            Include("user", "user", selector);
+            Include("user", selector);
             return this;
         }
 
-        public MemberRequestBuilder IncludeCampaign(Expression<Func<CampaignAttributes, object>> selector)
+        public MemberRequestBuilder IncludeCampaign(Expression<Func<Campaign, object>> selector)
         {
-            Include("campaign", "campaign", selector);
+            Include("campaign", selector);
             return this;
         }
 
-        public Task<PatreonResponse<MemberAttributes>> GetMember(string memberId)
+        public Task<PatreonResponse<Member>> GetMember(string memberId)
         {
             return GetSingle($"/api/oauth2/v2/members/{memberId}");
         }
 
-        public Task<PatreonCollectionResponse<MemberAttributes>> GetMembers(string campaignId)
+        public Task<PatreonCollectionResponse<Member>> GetMembers(string campaignId)
         {
             return GetCollection($"/api/oauth2/v2/campaigns/{campaignId}/members");
         }

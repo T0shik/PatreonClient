@@ -19,14 +19,14 @@ namespace PatreonClient
             _client = client;
         }
 
-        public void SelectFields<TAttr>(string fieldName, Expression<Func<TAttr, object>> selector)
+        public void SelectFields(Expression<Func<T, object>> selector)
         {
-            Fields.Add(new Field(fieldName, selector));
+            Fields.Add(selector == null ? Field.All<T>() : Field.Create(selector));
         }
 
-        public void Include<TAttr>(string fieldName, string includeName, Expression<Func<TAttr, object>> selector)
+        public void Include<TAttr>(string includeName, Expression<Func<TAttr, object>> selector)
         {
-            Fields.Add(new Field(fieldName, selector));
+            Fields.Add(Field.Create(selector));
             Includes.Add(includeName);
         }
 

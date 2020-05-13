@@ -6,24 +6,30 @@ using PatreonClient.Models.Attributes;
 
 namespace PatreonClient
 {
-    public class UserRequestBuilder : RequestBuilderBase<UserAttributes>
+    public class UserRequestBuilder : RequestBuilderBase<User>
     {
         public UserRequestBuilder(PatreonClient client)
             : base(client) { }
 
-        public UserRequestBuilder SelectFields(Expression<Func<UserAttributes, object>> selector)
+        public UserRequestBuilder Fields(Expression<Func<User, object>> selector = null)
         {
-            SelectFields("user", selector);
+            SelectFields(selector);
             return this;
         }
 
-        public UserRequestBuilder IncludeCampaign(Expression<Func<CampaignAttributes, object>> selector)
+        public UserRequestBuilder IncludeCampaign(Expression<Func<Campaign, object>> selector)
         {
-            Include("campaign", "campaign", selector);
+            Include("campaign", selector);
             return this;
         }
 
-        public Task<PatreonResponse<UserAttributes>> GetUser()
+        public UserRequestBuilder IncludeMemberships(Expression<Func<Member, object>> selector)
+        {
+            Include("memberships", selector);
+            return this;
+        }
+
+        public Task<PatreonResponse<User>> GetUser()
         {
             return GetSingle("/api/oauth2/v2/identity");
         }
