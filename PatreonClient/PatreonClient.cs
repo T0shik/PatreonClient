@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using PatreonClient.Models;
 using PatreonClient.Models.Attributes;
+using PatreonClient.Models.Relationships;
 
 namespace PatreonClient
 {
@@ -20,10 +21,36 @@ namespace PatreonClient
             _client = client;
         }
 
-        public UserRequestBuilder Identity => new UserRequestBuilder(this);
-        public CampaignRequestBuilder Campaigns => new CampaignRequestBuilder(this);
-        public MemberRequestBuilder Members => new MemberRequestBuilder(this);
-        public PostRequestBuilder Post => new PostRequestBuilder(this);
+        public RequestBuilderBase<User, UserRelationships> Identity() =>
+            new RequestBuilderBase<User, UserRelationships>(this, "/api/oauth2/v2/identity");
+
+        public RequestBuilderBase<Campaign, CampaignRelationships> Campaign(string campaignId) =>
+            new RequestBuilderBase<Campaign, CampaignRelationships>(
+                this,
+                string.Concat("/api/oauth2/v2/campaigns/", campaignId));
+
+        public RequestBuilderBase<Campaign, CampaignRelationships> Campaigns() =>
+            new RequestBuilderBase<Campaign, CampaignRelationships>(this, "/api/oauth2/v2/campaigns");
+
+        public RequestBuilderBase<Member, MemberRelationships> Member(string memberId) =>
+            new RequestBuilderBase<Member, MemberRelationships>(
+                this,
+                string.Concat("/api/oauth2/v2/members/", memberId));
+
+        public RequestBuilderBase<Member, MemberRelationships> Members(string campaignId) =>
+            new RequestBuilderBase<Member, MemberRelationships>(
+                this,
+                string.Concat("/api/oauth2/v2/campaigns/", campaignId, "/members"));
+
+        public RequestBuilderBase<Post, PostRelationships> Post(string postId) =>
+            new RequestBuilderBase<Post, PostRelationships>(
+                this,
+                string.Concat("/api/oauth2/v2/posts/", postId));
+
+        public RequestBuilderBase<Post, PostRelationships> Posts(string campaignId) =>
+            new RequestBuilderBase<Post, PostRelationships>(
+                this,
+                string.Concat("/api/oauth2/v2/campaigns/", campaignId, "/posts"));
 
         private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
         {
@@ -32,6 +59,8 @@ namespace PatreonClient
 
         private async Task<string> SendAsync(string url)
         {
+            Console.WriteLine(url);
+
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             var response = await _client.SendAsync(request);
             var content = await response.Content.ReadAsStringAsync();
@@ -40,42 +69,46 @@ namespace PatreonClient
                 throw new Exception($"Bad Request {content}");
             }
 
+            Console.WriteLine(content);
             return content;
         }
 
-        public async Task<PatreonResponse<T>> GetSingle<T>(string url)
+        public async Task<PatreonResponse<TAttribute, TRelationship>> GetSingle<TAttribute, TRelationship>(string url)
+            where TRelationship : IRelationship
         {
             var content = await SendAsync(url);
 
-            var result = JsonSerializer.Deserialize<PatreonResponse<T>>(content, JsonSerializerOptions);
+            var result =
+                JsonSerializer.Deserialize<PatreonResponse<TAttribute, TRelationship>>(content, JsonSerializerOptions);
 
-            ResolveRelationship(content,
-                                (element, type, id) =>
-                                    TryAddRelationship(element, type, id, result.Data.Relationships));
+            ResolveRelationship(content, (id, type, json) => result.Data.Relationships.AssignRelationship(id, type, json));
 
             return result;
         }
 
-        public async Task<PatreonCollectionResponse<T>> GetCollection<T>(string url)
+        public async Task<PatreonCollectionResponse<TAttribute, TRel>> GetCollection<TAttribute, TRel>(string url)
+            where TRel : IRelationship
         {
             var content = await SendAsync(url);
 
             Console.WriteLine(content);
 
-            var result = JsonSerializer.Deserialize<PatreonCollectionResponse<T>>(content, JsonSerializerOptions);
+            var result =
+                JsonSerializer.Deserialize<PatreonCollectionResponse<TAttribute, TRel>>(
+                    content,
+                    JsonSerializerOptions);
 
             ResolveRelationship(content,
-                                (element, type, id) =>
+                                (id, type, json) =>
                                 {
                                     foreach (var d in result.Data)
-                                        if (TryAddRelationship(element, type, id, d.Relationships))
-                                            break;
+                                        d.Relationships.AssignRelationship(id, type, json);
                                 });
 
             return result;
         }
 
-        private delegate void AddToAttribute(string element, string type, string id);
+        private delegate void AddToAttribute(string id, string type, string element);
 
         private static void ResolveRelationship(string content, AddToAttribute addToAttribute)
         {
@@ -90,48 +123,8 @@ namespace PatreonClient
             {
                 var type = el.EnumerateObject().FirstOrDefault(x => x.Name == "type").Value.ToString();
                 var id = el.EnumerateObject().FirstOrDefault(x => x.Name == "id").Value.ToString();
-                addToAttribute(el.ToString(), type, id);
+                addToAttribute(id, type, el.ToString());
             }
-        }
-
-        private static bool TryAddRelationship(
-            string jsonElement,
-            string type,
-            string id,
-            Relationships relationships)
-        {
-            if (relationships == null) return false;
-
-            if (type.Equals(nameof(Relationships.Campaign), StringComparison.InvariantCultureIgnoreCase)
-                && relationships.Campaign != null
-                && relationships.Campaign.Data.Id.Equals(id))
-            {
-                relationships.Campaign.Data =
-                    JsonSerializer.Deserialize<PatreonData<Campaign>>(jsonElement, JsonSerializerOptions);
-
-                return true;
-            }
-
-            if (type.Equals(nameof(Relationships.User), StringComparison.InvariantCultureIgnoreCase)
-                && relationships.User != null
-                && relationships.User.Data.Id.Equals(id))
-            {
-                relationships.User.Data =
-                    JsonSerializer.Deserialize<PatreonData<User>>(jsonElement, JsonSerializerOptions);
-
-                return true;
-            }
-
-            if (type.Equals(nameof(Relationships.Memberships), StringComparison.InvariantCultureIgnoreCase)
-                && relationships.Memberships != null)
-            {
-                relationships.Memberships.Data =
-                    JsonSerializer.Deserialize<IEnumerable<PatreonData<Member>>>(jsonElement, JsonSerializerOptions);
-
-                return true;
-            }
-
-            return false;
         }
     }
 }

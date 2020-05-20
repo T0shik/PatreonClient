@@ -1,10 +1,12 @@
 ﻿using PatreonClient.Models.Attributes;
+using PatreonClient.Models.Relationships;
 
 namespace PatreonClient.Models
 {
-    public class PatreonResponse<T>
+    public class PatreonResponse<TAttributes, TRelationships>
+        where TRelationships : IRelationship
     {
-        public PatreonData<T> Data { get; set; }
+        public PatreonData<TAttributes, TRelationships> Data { get; set; }
         public Links Links { get; set; }
     }
 }
