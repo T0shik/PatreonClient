@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PatreonClient.Models.Attributes;
@@ -20,11 +21,15 @@ namespace PatreonClient.Models.Relationships
                 return true;
             }
 
-            if (type.Equals("memberships"))
+            if (type.Equals("membership"))
             {
-                Memberships.Data =
-                    JsonSerializer.Deserialize<IEnumerable<PatreonData<Member, MemberRelationships>>>(json);
-                return true;
+                var data = JsonSerializer.Deserialize<PatreonData<Member, MemberRelationships>>(json);
+                var target = Memberships.Data?.FirstOrDefault(x => x.Id.Equals(data.Id));
+                if (target != null)
+                {
+                    target.Attributes = data.Attributes;
+                    return true;
+                }
             }
 
             return false;

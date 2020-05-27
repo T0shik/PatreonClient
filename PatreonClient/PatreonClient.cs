@@ -21,36 +21,47 @@ namespace PatreonClient
             _client = client;
         }
 
-        public RequestBuilderBase<User, UserRelationships> Identity() =>
-            new RequestBuilderBase<User, UserRelationships>(this, "/api/oauth2/v2/identity");
+        public PatreonRequest<PatreonResponse<User, UserRelationships>, User, UserRelationships> Identity(
+            Action<IRequestBuilder<User, UserRelationships>> builderAction)
+        {
+            var builder = new RequestBuilder<User, UserRelationships>(null, null);
+            builderAction(builder);
 
-        public RequestBuilderBase<Campaign, CampaignRelationships> Campaign(string campaignId) =>
-            new RequestBuilderBase<Campaign, CampaignRelationships>(
+            return new PatreonRequest<PatreonResponse<User, UserRelationships>, User, UserRelationships>(
                 this,
-                string.Concat("/api/oauth2/v2/campaigns/", campaignId));
+                "/api/oauth2/v2/identity",
+                builder.Fields,
+                builder.Includes);
+        }
 
-        public RequestBuilderBase<Campaign, CampaignRelationships> Campaigns() =>
-            new RequestBuilderBase<Campaign, CampaignRelationships>(this, "/api/oauth2/v2/campaigns");
+        // public ISingleRequestBuilder<Campaign, CampaignRelationships> Campaign(string campaignId) =>
+        //     new FieldSelector<Campaign, CampaignRelationships>(
+        //         this,
+        //         string.Concat("/api/oauth2/v2/campaigns/", campaignId));
+        //
+        // public ICollectionRequestBuilder<Campaign, CampaignRelationships> Campaigns() =>
+        //     new FieldSelector<Campaign, CampaignRelationships>(this, "/api/oauth2/v2/campaigns");
+        //
+        // public ISingleRequestBuilder<Member, MemberRelationships> Member(string memberId) =>
+        //     new FieldSelector<Member, MemberRelationships>(
+        //         this,
+        //         string.Concat("/api/oauth2/v2/members/", memberId));
+        //
+        // public ICollectionRequestBuilder<Member, MemberRelationships> Members(string campaignId) =>
+        //     new FieldSelector<Member, MemberRelationships>(
+        //         this,
+        //         string.Concat("/api/oauth2/v2/campaigns/", campaignId, "/members"));
+        //
+        // public ISingleRequestBuilder<Post, PostRelationships> Post(string postId) =>
+        //     new FieldSelector<Post, PostRelationships>(
+        //         this,
+        //         string.Concat("/api/oauth2/v2/posts/", postId));
+        //
+        // public ICollectionRequestBuilder<Post, PostRelationships> Posts(string campaignId) =>
+        //     new FieldSelector<Post, PostRelationships>(
+        //         this,
+        //         string.Concat("/api/oauth2/v2/campaigns/", campaignId, "/posts"));
 
-        public RequestBuilderBase<Member, MemberRelationships> Member(string memberId) =>
-            new RequestBuilderBase<Member, MemberRelationships>(
-                this,
-                string.Concat("/api/oauth2/v2/members/", memberId));
-
-        public RequestBuilderBase<Member, MemberRelationships> Members(string campaignId) =>
-            new RequestBuilderBase<Member, MemberRelationships>(
-                this,
-                string.Concat("/api/oauth2/v2/campaigns/", campaignId, "/members"));
-
-        public RequestBuilderBase<Post, PostRelationships> Post(string postId) =>
-            new RequestBuilderBase<Post, PostRelationships>(
-                this,
-                string.Concat("/api/oauth2/v2/posts/", postId));
-
-        public RequestBuilderBase<Post, PostRelationships> Posts(string campaignId) =>
-            new RequestBuilderBase<Post, PostRelationships>(
-                this,
-                string.Concat("/api/oauth2/v2/campaigns/", campaignId, "/posts"));
 
         private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
         {
@@ -73,38 +84,22 @@ namespace PatreonClient
             return content;
         }
 
-        public async Task<PatreonResponse<TAttribute, TRelationship>> GetSingle<TAttribute, TRelationship>(string url)
+        public async Task<TResponse> Call<TResponse,TAttribute, TRelationship>(string url)
+            where TResponse : IPatreonResponse<TAttribute, TRelationship>
             where TRelationship : IRelationship
         {
             var content = await SendAsync(url);
 
             var result =
-                JsonSerializer.Deserialize<PatreonResponse<TAttribute, TRelationship>>(content, JsonSerializerOptions);
+                JsonSerializer.Deserialize<TResponse>(content, JsonSerializerOptions);
 
-            ResolveRelationship(content, (id, type, json) => result.Data.Relationships.AssignRelationship(id, type, json));
-
-            return result;
-        }
-
-        public async Task<PatreonCollectionResponse<TAttribute, TRel>> GetCollection<TAttribute, TRel>(string url)
-            where TRel : IRelationship
-        {
-            var content = await SendAsync(url);
-
-            Console.WriteLine(content);
-
-            var result =
-                JsonSerializer.Deserialize<PatreonCollectionResponse<TAttribute, TRel>>(
-                    content,
-                    JsonSerializerOptions);
-
-            ResolveRelationship(content,
-                                (id, type, json) =>
-                                {
-                                    foreach (var d in result.Data)
-                                        d.Relationships.AssignRelationship(id, type, json);
-                                });
-
+            // ResolveRelationship(content, (id, type, json) => result.Data.Relationships.AssignRelationship(id, type, json));
+            // ResolveRelationship(content,
+            //                     (id, type, json) =>
+            //                     {
+            //                         foreach (var d in result.Data)
+            //                             d.Relationships.AssignRelationship(id, type, json);
+            //                     });
             return result;
         }
 
