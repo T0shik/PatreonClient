@@ -12,26 +12,24 @@ namespace PatreonClient.Models.Relationships
         [JsonPropertyName("creator")] public PatreonResponse<User, UserRelationships> Creator { get; set; }
         [JsonPropertyName("tiers")] public PatreonCollectionResponse<Tier, TierRelationships> Tiers { get; set; }
 
-        public bool AssignRelationship(string id, string type, string json)
+        public void AssignRelationship(IReadOnlyCollection<PatreonData> includes)
         {
-            if (type.Equals("creator"))
+            if (Creator != null)
             {
-                Creator.Data = JsonSerializer.Deserialize<PatreonData<User, UserRelationships>>(json);
-                return true;
-            }
+                Creator.Data = includes.FirstOrDefault(x => x.Id == Creator.Data.Id) as
+                                   PatreonData<User, UserRelationships>;
 
-            if (type.Equals("tier"))
+                Creator.Data?.Relationships?.AssignRelationship(includes);
+            }
+            if (Tiers != null)
             {
-                var data = JsonSerializer.Deserialize<PatreonData<Tier, EmptyRelationship>>(json);
-                var target = Tiers.Data?.FirstOrDefault(x => x.Id.Equals(data.Id));
-                if (target != null)
+                foreach (var tier in Tiers.Data)
                 {
-                    target.Attributes = data.Attributes;
-                    return true;
+                    var include = includes.FirstOrDefault(x => x.Id == tier.Id) as PatreonData<Tier, TierRelationships>;
+                    tier.Attributes = include?.Attributes;
+                    tier.Relationships = include?.Relationships;
                 }
             }
-
-            return false;
         }
     }
 }

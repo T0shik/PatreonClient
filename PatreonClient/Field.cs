@@ -30,7 +30,7 @@ namespace PatreonClient
             return new Field(type, fields);
         }
 
-        public static Field Create<T>(Expression<Func<T, object>> selector)
+        public static Field Create<TAttribute>(Expression selector)
         {
             var fields = new List<string>();
 
@@ -50,7 +50,7 @@ namespace PatreonClient
                 }
             }
 
-            return new Field(typeof(T), fields);
+            return new Field(typeof(TAttribute), fields);
         }
 
         public string ToString(string prefix)

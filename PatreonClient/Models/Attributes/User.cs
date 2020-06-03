@@ -38,4 +38,6 @@ namespace PatreonClient.Models.Attributes
         [JsonPropertyName("social_connections")]
         public Dictionary<string, Social> SocialConnections { get; set; }
     }
+
+    public class Creator : User {    }
 }

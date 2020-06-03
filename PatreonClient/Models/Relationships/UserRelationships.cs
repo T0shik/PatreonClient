@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,26 +14,20 @@ namespace PatreonClient.Models.Relationships
         [JsonPropertyName("memberships")]
         public PatreonCollectionResponse<Member, MemberRelationships> Memberships { get; set; }
 
-        public bool AssignRelationship(string id, string type, string json)
+        public void AssignRelationship(IReadOnlyCollection<PatreonData> includes)
         {
-            if (type.Equals("campaign"))
+            if (Campaign != null)
             {
-                Campaign.Data = JsonSerializer.Deserialize<PatreonData<Campaign, CampaignRelationships>>(json);
-                return true;
+                Campaign.Data = includes.FirstOrDefault(x => x.Id == Campaign.Data.Id) as
+                                    PatreonData<Campaign, CampaignRelationships>;
+
+                Campaign.Data?.Relationships?.AssignRelationship(includes);
             }
 
-            if (type.Equals("membership"))
+            if (Memberships != null)
             {
-                var data = JsonSerializer.Deserialize<PatreonData<Member, MemberRelationships>>(json);
-                var target = Memberships.Data?.FirstOrDefault(x => x.Id.Equals(data.Id));
-                if (target != null)
-                {
-                    target.Attributes = data.Attributes;
-                    return true;
-                }
+                foreach (var membership in Memberships.Data) { }
             }
-
-            return false;
         }
     }
 }

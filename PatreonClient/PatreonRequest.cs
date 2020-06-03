@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using PatreonClient.Models;
 using PatreonClient.Models.Relationships;
@@ -9,31 +10,23 @@ namespace PatreonClient
         where TResponse : IPatreonResponse<TAttribute, TRelationship>
         where TRelationship : IRelationship
     {
-        private readonly PatreonClient _client;
-        private readonly string _url;
-        private readonly List<Field> _fields;
-        private readonly List<string> _includes;
+        public PatreonRequest(string url, IEnumerable<Field> fields, IReadOnlyCollection<string> includes) =>
+            Url = BuildUrl(url, fields, includes);
 
-        public PatreonRequest(PatreonClient client, string url, List<Field> fields, List<string> includes)
-        {
-            _client = client;
-            _url = url;
-            _fields = fields;
-            _includes = includes;
-        }
+        public string Url { get; }
 
-        private string BuildUrl(string url)
+        private static string BuildUrl(string url, IEnumerable<Field> fields, IReadOnlyCollection<string> includes)
         {
             var result = "";
-            var hasInclude = _includes.Count > 0;
+            var hasInclude = includes.Count > 0;
             var ampersand = false;
             if (hasInclude)
             {
-                result = string.Concat("?include=", string.Join(',', _includes));
+                result = string.Concat("?include=", string.Join(',', includes));
                 ampersand = true;
             }
 
-            foreach (var field in _fields)
+            foreach (var field in fields)
             {
                 result = string.Concat(result, field.ToString(ampersand ? "&" : "?"));
                 ampersand = true;
@@ -41,10 +34,13 @@ namespace PatreonClient
 
             return string.Concat(url, result);
         }
+    }
 
-        public Task<TResponse> Call()
-        {
-            return _client.Call<TResponse, TAttribute, TRelationship>(BuildUrl(_url));
-        }
+    public class PatreonParameterizedRequest<TResponse, TAttribute, TRelationship>
+        : PatreonRequest<TResponse, TAttribute, TRelationship>
+        where TResponse : IPatreonResponse<TAttribute, TRelationship>
+        where TRelationship : IRelationship
+    {
+        public PatreonParameterizedRequest(string url, IEnumerable<Field> fields, IReadOnlyCollection<string> includes) : base(url, fields, includes) { }
     }
 }

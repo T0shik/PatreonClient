@@ -1,10 +1,11 @@
-﻿namespace PatreonClient.Models.Relationships
+﻿using System.Collections.Generic;
+
+namespace PatreonClient.Models.Relationships
 {
     public class EmptyRelationship : IRelationship
     {
-        public bool AssignRelationship(string id, string type, string json)
+        public void AssignRelationship(IReadOnlyCollection<PatreonData> includes)
         {
-            return true;
         }
     }
 }

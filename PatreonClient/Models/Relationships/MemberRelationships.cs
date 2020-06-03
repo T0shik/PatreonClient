@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using PatreonClient.Models.Attributes;
 
 namespace PatreonClient.Models.Relationships
@@ -7,7 +8,7 @@ namespace PatreonClient.Models.Relationships
     {
         [JsonPropertyName("campaign")] public PatreonResponse<Campaign, CampaignRelationships> Campaign { get; set; }
         [JsonPropertyName("user")] public PatreonResponse<User, UserRelationships> User { get; set; }
-        public bool AssignRelationship(string id, string type, string json)
+        public void AssignRelationship(IReadOnlyCollection<PatreonData> includes)
         {
             throw new System.NotImplementedException();
         }
