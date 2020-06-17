@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PatreonClient.Models.Relationships
+namespace PatreonClient.Models
 {
     public interface IRelationship
     {

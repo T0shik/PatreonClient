@@ -1,4 +1,5 @@
-﻿using PatreonClient.Models.Relationships;
+﻿using PatreonClient.Models.Attributes;
+using PatreonClient.Models.Relationships;
 
 namespace PatreonClient.Models
 {

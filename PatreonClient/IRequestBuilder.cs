@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using PatreonClient.Models;
+using PatreonClient.Models.Attributes;
 using PatreonClient.Models.Relationships;
 
 namespace PatreonClient

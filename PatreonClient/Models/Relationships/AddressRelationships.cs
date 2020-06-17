@@ -5,26 +5,28 @@ using PatreonClient.Models.Attributes;
 
 namespace PatreonClient.Models.Relationships
 {
-    public class PostRelationships : IRelationship
+    public class AddressRelationships : IRelationship
     {
-        [JsonPropertyName("campaign")] public PatreonResponse<Campaign, CampaignRelationships> Campaign { get; set; }
         [JsonPropertyName("user")] public PatreonResponse<User, UserRelationships> User { get; set; }
+        [JsonPropertyName("campaigns")] public PatreonCollectionResponse<Campaign, CampaignRelationships> Campaigns { get; set; }
         public void AssignRelationship(IReadOnlyCollection<PatreonData> includes)
         {
-            if (Campaign?.Data != null)
-            {
-                Campaign.Data = includes.FirstOrDefault(x => x.Id == Campaign.Data.Id) as
-                                    PatreonData<Campaign, CampaignRelationships>;
-
-                Campaign.Data?.Relationships?.AssignRelationship(includes);
-            }
-
             if (User?.Data != null)
             {
                 User.Data = includes.FirstOrDefault(x => x.Id == User.Data.Id) as
                                 PatreonData<User, UserRelationships>;
 
                 User.Data?.Relationships?.AssignRelationship(includes);
+            }
+            if (Campaigns != null)
+            {
+                foreach (var campaign in Campaigns.Data)
+                {
+                    var include = includes.FirstOrDefault(x => x.Id == campaign.Id) as PatreonData<Campaign, CampaignRelationships>;
+                    campaign.Attributes = include?.Attributes;
+                    campaign.Relationships = include?.Relationships;
+                    campaign.Relationships?.AssignRelationship(includes);
+                }
             }
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PatreonClient.Models;
+using PatreonClient.Models.Attributes;
 using PatreonClient.Models.Relationships;
 
 namespace PatreonClient

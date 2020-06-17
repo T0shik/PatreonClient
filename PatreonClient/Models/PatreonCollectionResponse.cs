@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using PatreonClient.Models.Attributes;
 using PatreonClient.Models.Relationships;
 
 namespace PatreonClient.Models

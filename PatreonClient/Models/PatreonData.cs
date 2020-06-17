@@ -10,10 +10,14 @@ namespace PatreonClient.Models
         [JsonPropertyName("type")] public string Type { get; set; }
     }
 
-    public class PatreonData<TAttributes, TRelationships> : PatreonData
-        where TRelationships : IRelationship
+    public class PatreonData<TAttributes> : PatreonData
     {
         [JsonPropertyName("attributes")] public TAttributes Attributes { get; set; }
+    }
+
+    public class PatreonData<TAttributes, TRelationships> : PatreonData<TAttributes>
+        where TRelationships : IRelationship
+    {
         [JsonPropertyName("relationships")] public TRelationships Relationships { get; set; }
     }
 }

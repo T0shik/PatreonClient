@@ -90,19 +90,44 @@ namespace PatreonClient
                 if (type.Equals("campaign"))
                 {
                     yield return
-                        JsonSerializer.Deserialize<PatreonData<Campaign, CampaignRelationships>>(el.ToString());
+                        JsonSerializer.Deserialize<PatreonData<Campaign, CampaignRelationships>>(el.ToString(), JsonSerializerOptions);
                 }
-                else if (type.Equals("membership"))
+                else if (type.Equals("member"))
                 {
-                    yield return JsonSerializer.Deserialize<PatreonData<Member, MemberRelationships>>(el.ToString());
+                    yield return JsonSerializer.Deserialize<PatreonData<Member, MemberRelationships>>(el.ToString(), JsonSerializerOptions);
                 }
-                else if (type.Equals("user") || type.Equals("creator"))
+                else if (type.Equals("user") || type.Equals("creator") || type.Equals("patron"))
                 {
-                    yield return JsonSerializer.Deserialize<PatreonData<User, UserRelationships>>(el.ToString());
+                    yield return JsonSerializer.Deserialize<PatreonData<User, UserRelationships>>(el.ToString(), JsonSerializerOptions);
                 }
                 else if (type.Equals("tier"))
                 {
-                    yield return JsonSerializer.Deserialize<PatreonData<Tier, TierRelationships>>(el.ToString());
+                    var tier = JsonSerializer.Deserialize<PatreonData<Tier, TierRelationships>>(el.ToString(), JsonSerializerOptions);
+                    yield return tier;
+                }
+                else if (type.Equals("media"))
+                {
+                    yield return JsonSerializer.Deserialize<PatreonData<Media>>(el.ToString(), JsonSerializerOptions);
+                }
+                else if (type.Equals("benefit"))
+                {
+                    yield return JsonSerializer.Deserialize<PatreonData<Benefit, BenefitRelationships>>(el.ToString(), JsonSerializerOptions);
+                }
+                else if (type.Equals("deliverable"))
+                {
+                    yield return JsonSerializer.Deserialize<PatreonData<Deliverable, DeliverableRelationships>>(el.ToString(), JsonSerializerOptions);
+                }
+                else if (type.Equals("address"))
+                {
+                    yield return JsonSerializer.Deserialize<PatreonData<Address, AddressRelationships>>(el.ToString(), JsonSerializerOptions);
+                }
+                else if (type.Equals("goal"))
+                {
+                    yield return JsonSerializer.Deserialize<PatreonData<Goal, GoalRelationships>>(el.ToString(), JsonSerializerOptions);
+                }
+                else if (type.Equals("post"))
+                {
+                    yield return JsonSerializer.Deserialize<PatreonData<Post, PostRelationships>>(el.ToString(), JsonSerializerOptions);
                 }
             }
         }

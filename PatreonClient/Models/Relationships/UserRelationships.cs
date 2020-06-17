@@ -23,10 +23,15 @@ namespace PatreonClient.Models.Relationships
 
                 Campaign.Data?.Relationships?.AssignRelationship(includes);
             }
-
             if (Memberships != null)
             {
-                foreach (var membership in Memberships.Data) { }
+                foreach (var membership in Memberships.Data)
+                {
+                    var include = includes.FirstOrDefault(x => x.Id == membership.Id) as PatreonData<Member, MemberRelationships>;
+                    membership.Attributes = include?.Attributes;
+                    membership.Relationships = include?.Relationships;
+                    membership.Relationships?.AssignRelationship(includes);
+                }
             }
         }
     }
