@@ -11,7 +11,7 @@ namespace PatreonClient.RequestBuilders
     internal class Field
     {
         private Type Type { get; }
-        private List<string> Fields { get; set; }
+        private List<string> Fields { get; }
 
         private Field(Type type, List<string> fields)
         {
