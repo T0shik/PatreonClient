@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using PatreonClient.Internals;
 using PatreonClient.Models;
 
 namespace PatreonClient.RequestBuilders

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using PatreonClient.Internals;
 using PatreonClient.Models;
 using PatreonClient.Requests;
 

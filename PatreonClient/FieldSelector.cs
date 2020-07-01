@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using PatreonClient.Internals;
 using PatreonClient.Models;
 using PatreonClient.RequestBuilders;
 
