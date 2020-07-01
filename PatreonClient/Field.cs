@@ -35,7 +35,7 @@ namespace PatreonClient
             var fields = new List<string>();
 
             var lambda = (LambdaExpression) selector;
-            if (!(lambda.Body is NewExpression ne)) throw new InvalidEnumArgumentException(nameof(selector));
+            if (!(lambda.Body is NewExpression ne)) throw new InvalidFieldSelectorException();
 
             foreach (var arg in ne.Arguments)
             {
@@ -59,6 +59,20 @@ namespace PatreonClient
 
             var fieldName = Type.Name.ToLowerInvariant();
             return string.Concat(prefix, "fields%5B", fieldName, "%5D=", string.Join(',', Fields));
+        }
+
+        private class InvalidFieldSelectorException : Exception
+        {
+            private const string c_error =
+                @"Use NewBody Expression to specify the list of fields to query from patreon api
+Example:
+x => new {
+    x.FirstName,
+    x.LastName,
+    ...
+};";
+
+            public InvalidFieldSelectorException() : base(c_error) { }
         }
     }
 }

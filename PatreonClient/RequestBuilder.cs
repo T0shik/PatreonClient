@@ -5,37 +5,37 @@ using System.Reflection;
 using PatreonClient.Models;
 using PatreonClient.Models.Attributes;
 using PatreonClient.Models.Relationships;
+using PatreonClient.Requests;
 using JsonAttr = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
 namespace PatreonClient
 {
-    public static class RequestBuilder
+    public class RequestBuilder
     {
-        public static PatreonRequest<PatreonResponse<User, UserRelationships>, User, UserRelationships> Identity(
-            Action<IFieldSelector<User, UserRelationships>> builderAction)
-        {
-            var builder = new FieldSelector<User, UserRelationships>(null, null);
-            builderAction(builder);
+        public RequestBuilder() { }
 
-            return new PatreonRequest<PatreonResponse<User, UserRelationships>, User, UserRelationships>(
+        public static IFieldSelector<PatreonResponse<User, UserRelationships>, User, UserRelationships> Identity()
+        {
+            return new FieldSelector<PatreonResponse<User, UserRelationships>, User, UserRelationships>(
+                null,
+                null,
                 "/api/oauth2/v2/identity",
-                builder.Fields,
-                builder.Includes);
+                false);
         }
 
-        public static PatreonParameterizedRequest<PatreonResponse<Campaign, CampaignRelationships>, Campaign,
-                CampaignRelationships>
-            Campaign(Action<IFieldSelector<Campaign, CampaignRelationships>> builderAction)
-        {
-            var builder = new FieldSelector<Campaign, CampaignRelationships>(null, null);
-            builderAction(builder);
-
-            return new PatreonParameterizedRequest<PatreonResponse<Campaign, CampaignRelationships>, Campaign,
-                CampaignRelationships>(
-                "/api/oauth2/v2/campaigns/{0}",
-                builder.Fields,
-                builder.Includes);
-        }
+        // public static PatreonParameterizedRequest<PatreonResponse<Campaign, CampaignRelationships>, Campaign,
+        //         CampaignRelationships>
+        //     Campaign(Action<IFieldSelector<Campaign, CampaignRelationships>> builderAction)
+        // {
+        //     var builder = new FieldSelector<Campaign, CampaignRelationships>(null, null);
+        //     builderAction(builder);
+        //
+        //     return new PatreonParameterizedRequest<PatreonResponse<Campaign, CampaignRelationships>, Campaign,
+        //         CampaignRelationships>(
+        //         "/api/oauth2/v2/campaigns/{0}",
+        //         builder.Fields,
+        //         builder.Includes);
+        // }
 
         // public ICollectionRequestBuilder<Campaign, CampaignRelationships> Campaigns() =>
         //     new FieldSelector<Campaign, CampaignRelationships>(this, "/api/oauth2/v2/campaigns");
@@ -61,38 +61,91 @@ namespace PatreonClient
         //         string.Concat("/api/oauth2/v2/campaigns/", campaignId, "/posts"));
     }
 
-    internal class FieldSelector<TAttributes, TRelationships> : IFieldSelector<TAttributes, TRelationships>
+    internal abstract class RequestBuilderBase<TResponse, TAttributes, TRelationships>
+        : IRequestBuilderBase<TResponse, TAttributes, TRelationships>
+        where TResponse : IPatreonResponse<TAttributes, TRelationships>
         where TRelationships : IRelationship
     {
+        internal bool WithParams { get; }
+        internal string Url { get; }
         internal List<Field> Fields { get; }
         internal List<string> Includes { get; }
 
-        internal FieldSelector(List<Field> fields, List<string> includes)
+        internal RequestBuilderBase(List<Field> fields, List<string> includes, string url, bool withParams)
         {
+            WithParams = withParams;
+            Url = url;
             Fields = fields ?? new List<Field>();
             Includes = includes ?? new List<string>();
         }
 
-        public IRequestBuilder<TAttributes, TRelationships> SelectFields(Expression<Func<TAttributes, object>> selector)
+        public IPatreonRequest<TResponse, TAttributes, TRelationships> Build()
         {
-            Fields.Add(selector == null ? Field.All<TAttributes>() : Field.Create<TAttributes>(selector));
-            return new RequestBuilder<TAttributes, TRelationships>(Fields, Includes);
+            var url = BuildUrl();
+            return WithParams
+                       ? new ParameterizedPatreonRequest<TResponse, TAttributes, TRelationships>(url)
+                       : new PatreonRequest<TResponse, TAttributes, TRelationships>(url);
+        }
+
+        private string BuildUrl()
+        {
+            var result = "";
+            var hasInclude = Includes.Count > 0;
+            var ampersand = false;
+            if (hasInclude)
+            {
+                result = string.Concat("?include=", string.Join(',', Includes));
+                ampersand = true;
+            }
+
+            foreach (var field in Fields)
+            {
+                result = string.Concat(result, field.ToString(ampersand ? "&" : "?"));
+                ampersand = true;
+            }
+
+            return string.Concat(Url, result);
         }
     }
 
-    internal class RequestBuilder<TAttributes, TRelationships> : FieldSelector<TAttributes, TRelationships>,
-                                                                 IRequestBuilder<TAttributes, TRelationships>
+    internal class FieldSelector<TResponse, TAttributes, TRelationships>
+        : RequestBuilderBase<TResponse, TAttributes, TRelationships>,
+          IFieldSelector<TResponse, TAttributes, TRelationships>
+        where TResponse : IPatreonResponse<TAttributes, TRelationships>
         where TRelationships : IRelationship
     {
-        internal RequestBuilder(List<Field> fields, List<string> includes) : base(fields, includes) { }
+        public FieldSelector(List<Field> fields, List<string> includes, string url, bool withParams)
+            : base(fields, includes, url, withParams) { }
 
-        public IRequestBuilder<TAttributes, TRelationships, TRel> Include<TAttr, TRel>(
+        public IRequestBuilder<TResponse, TAttributes, TRelationships> SelectFields(
+            Expression<Func<TAttributes, object>> selector)
+        {
+            Fields.Add(selector == null ? Field.All<TAttributes>() : Field.Create<TAttributes>(selector));
+            return new RequestBuilder<TResponse, TAttributes, TRelationships>(Fields, Includes, Url, WithParams);
+        }
+    }
+
+    internal class RequestBuilder<TResponse, TAttributes, TRelationships>
+        : FieldSelector<TResponse, TAttributes, TRelationships>,
+          IRequestBuilder<TResponse, TAttributes, TRelationships>
+        where TResponse : IPatreonResponse<TAttributes, TRelationships>
+        where TRelationships : IRelationship
+    {
+        public RequestBuilder(List<Field> fields, List<string> includes, string url, bool withParams)
+            : base(fields, includes, url, withParams) { }
+
+        public IRequestBuilder<TResponse, TAttributes, TRelationships, TRel> Include<TAttr, TRel>(
             Expression<Func<TRelationships, IPatreonResponse<TAttr, TRel>>> relationshipSelector,
             Expression<Func<TAttr, object>> fieldSelector = null)
             where TRel : IRelationship
         {
             var path = HandleIncludesAndFields<TAttr>(relationshipSelector, fieldSelector);
-            return new RequestBuilder<TAttributes, TRelationships, TRel>(path, Fields, Includes);
+            return new RequestBuilder<TResponse, TAttributes, TRelationships, TRel>(
+                path,
+                Fields,
+                Includes,
+                Url,
+                WithParams);
         }
 
         private string HandleIncludesAndFields<TAttr>(
@@ -116,25 +169,33 @@ namespace PatreonClient
         }
     }
 
-    internal class RequestBuilder<TAttributes, TOrigin, TNext> : RequestBuilder<TAttributes, TOrigin>,
-                                                                 IRequestBuilder<TAttributes, TOrigin, TNext>
+    internal class RequestBuilder<TResponse, TAttributes, TOrigin, TNext>
+        : RequestBuilder<TResponse, TAttributes, TOrigin>,
+          IRequestBuilder<TResponse, TAttributes, TOrigin, TNext>
+        where TResponse : IPatreonResponse<TAttributes, TOrigin>
         where TOrigin : IRelationship
         where TNext : IRelationship
     {
         private readonly string _path;
 
-        internal RequestBuilder(string path, List<Field> fields, List<string> includes) : base(fields, includes)
+        public RequestBuilder(
+            string path,
+            List<Field> fields,
+            List<string> includes,
+            string url,
+            bool withParams)
+            : base(fields, includes, url, withParams)
         {
             _path = path;
         }
 
-        public IRequestBuilder<TAttributes, TOrigin, TRel> ThenInclude<TAttr, TRel>(
+        public IRequestBuilder<TResponse, TAttributes, TOrigin, TRel> ThenInclude<TAttr, TRel>(
             Expression<Func<TNext, IPatreonResponse<TAttr, TRel>>> relationshipSelector,
             Expression<Func<TAttr, object>> fieldSelector = null)
             where TRel : IRelationship
         {
             var path = HandleIncludesAndFields<TAttr>(relationshipSelector, fieldSelector);
-            return new RequestBuilder<TAttributes, TOrigin, TRel>(path, Fields, Includes);
+            return new RequestBuilder<TResponse, TAttributes, TOrigin, TRel>(path, Fields, Includes, Url, WithParams);
         }
 
         private string HandleIncludesAndFields<TAttr>(

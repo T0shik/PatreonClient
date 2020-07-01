@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using PatreonClient.Models;
 using PatreonClient.Models.Attributes;
 using PatreonClient.Models.Relationships;
+using PatreonClient.Requests;
 
 namespace PatreonClient
 {
@@ -29,20 +30,26 @@ namespace PatreonClient
         };
 
         public Task<TResponse> SendAsync<TResponse, TAttribute, TRelationship>(
-            PatreonParameterizedRequest<TResponse, TAttribute, TRelationship> request,
-            string parameter)
+            IPatreonRequest<TResponse, TAttribute, TRelationship> request,
+            string parameter = null)
             where TResponse : IPatreonResponse<TAttribute, TRelationship>
             where TRelationship : IRelationship
         {
-            return SendAsync<TResponse, TAttribute, TRelationship>(string.Format(request.Url, parameter));
-        }
+            if (request is ParameterizedPatreonRequest<TResponse, TAttribute, TRelationship>)
+            {
+                if (string.IsNullOrEmpty(parameter))
+                {
+                    throw new ArgumentException($"{nameof(parameter)} is required");
+                }
+                return SendAsync<TResponse, TAttribute, TRelationship>(string.Format(request.Url, parameter));
+            }
 
-        public Task<TResponse> SendAsync<TResponse, TAttribute, TRelationship>(
-            PatreonRequest<TResponse, TAttribute, TRelationship> request)
-            where TResponse : IPatreonResponse<TAttribute, TRelationship>
-            where TRelationship : IRelationship
-        {
-            return SendAsync<TResponse, TAttribute, TRelationship>(request.Url);
+            if (request is PatreonRequest<TResponse, TAttribute, TRelationship>)
+            {
+                return SendAsync<TResponse, TAttribute, TRelationship>(request.Url);
+            }
+
+            throw new ArgumentException($"invalid {nameof(request)}");
         }
 
         private async Task<TResponse> SendAsync<TResponse, TAttribute, TRelationship>(string url)
@@ -79,12 +86,12 @@ namespace PatreonClient
         private IEnumerable<PatreonData> AggregateIncludes(string content)
         {
             var doc = JsonDocument.Parse(Encoding.UTF8.GetBytes(content));
-            var obj = (IEnumerable<JsonProperty>) doc.RootElement.EnumerateObject();
-            var included = obj.FirstOrDefault(x => x.Name == "included");
+            if (!doc.RootElement.TryGetProperty("included", out var included))
+            {
+                yield break;
+            }
 
-            var array = included.Value.EnumerateArray();
-
-            foreach (var el in array)
+            foreach (var el in included.EnumerateArray())
             {
                 var type = el.EnumerateObject().FirstOrDefault(x => x.Name == "type").Value.ToString();
                 if (type.Equals("campaign"))
