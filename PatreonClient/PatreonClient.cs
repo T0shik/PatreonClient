@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using PatreonClient.Models;
 using PatreonClient.Models.Attributes;
@@ -39,7 +37,7 @@ namespace PatreonClient
             {
                 if (string.IsNullOrEmpty(parameter))
                 {
-                    throw new ArgumentException($"{nameof(parameter)} is required");
+                    throw new ArgumentException($"{nameof(parameter)} is required for {typeof(TAttribute).Name}");
                 }
                 return SendAsync<TResponse, TAttribute, TRelationship>(string.Format(request.Url, parameter));
             }
