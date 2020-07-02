@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.Json.Serialization;
 using PatreonClient.Models.Attributes;
+using PatreonClient.Responses;
 
 namespace PatreonClient.Models.Relationships
 {

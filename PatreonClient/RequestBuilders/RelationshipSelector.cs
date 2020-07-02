@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using PatreonClient.Models;
+using PatreonClient.Responses;
 
 namespace PatreonClient.RequestBuilders
 {

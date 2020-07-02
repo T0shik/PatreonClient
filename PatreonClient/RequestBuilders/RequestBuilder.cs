@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using PatreonClient.Models;
 using PatreonClient.Requests;
+using PatreonClient.Responses;
 
 namespace PatreonClient.RequestBuilders
 {

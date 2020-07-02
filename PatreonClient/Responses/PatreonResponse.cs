@@ -1,7 +1,7 @@
-﻿using PatreonClient.Models.Attributes;
+﻿using PatreonClient.Models;
 using PatreonClient.Models.Relationships;
 
-namespace PatreonClient.Models
+namespace PatreonClient.Responses
 {
     public class PatreonResponse<TAttributes> : IPatreonResponse<TAttributes, Empty>
     {

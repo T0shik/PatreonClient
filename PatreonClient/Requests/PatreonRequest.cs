@@ -1,4 +1,5 @@
 ﻿using PatreonClient.Models;
+using PatreonClient.Responses;
 
 namespace PatreonClient.Requests
 {
