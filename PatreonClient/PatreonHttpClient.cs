@@ -14,11 +14,11 @@ using PatreonClient.Responses;
 
 namespace PatreonClient
 {
-    public class PatreonClient
+    public class PatreonHttpClient
     {
         private readonly HttpClient _client;
 
-        public PatreonClient(HttpClient client)
+        public PatreonHttpClient(HttpClient client)
         {
             _client = client;
         }
@@ -71,6 +71,7 @@ namespace PatreonClient
             where TRelationship : IRelationship
         {
             var content = await SendAsync(url);
+            Console.WriteLine(content);
 
             var result = JsonSerializer.Deserialize<TResponse>(content, JsonSerializerOptions);
 
