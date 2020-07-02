@@ -83,8 +83,6 @@ namespace PatreonClient
 
         private async Task<string> SendAsync(string url)
         {
-            Console.WriteLine(url);
-
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             var response = await _client.SendAsync(request);
             var content = await response.Content.ReadAsStringAsync();
@@ -93,7 +91,6 @@ namespace PatreonClient
                 throw new Exception($"Bad Request {content}");
             }
 
-            Console.WriteLine(content);
             return content;
         }
 
