@@ -11,14 +11,14 @@ namespace PatreonClient.RequestBuilders
     internal class RelationshipSelector<TResponse, TAttributes, TRelationships>
         : FieldSelector<TResponse, TAttributes, TRelationships>,
           IRelationshipSelector<TResponse, TAttributes, TRelationships>
-        where TResponse : IPatreonResponse<TAttributes, TRelationships>
+        where TResponse : PatreonResponseBase<TAttributes, TRelationships>
         where TRelationships : IRelationship
     {
         public RelationshipSelector(List<Field> fields, List<string> includes, string url, bool withParams)
             : base(fields, includes, url, withParams) { }
 
         public INestedRelationshipSelector<TResponse, TAttributes, TRelationships, TRel> Include<TAttr, TRel>(
-            Expression<Func<TRelationships, IPatreonResponse<TAttr, TRel>>> relationshipSelector,
+            Expression<Func<TRelationships, PatreonResponseBase<TAttr, TRel>>> relationshipSelector,
             Expression<Func<TAttr, object>> fieldSelector = null)
             where TRel : IRelationship
         {

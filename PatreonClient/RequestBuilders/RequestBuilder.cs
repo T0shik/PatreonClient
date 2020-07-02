@@ -7,7 +7,7 @@ namespace PatreonClient.RequestBuilders
 {
     internal abstract class RequestBuilder<TResponse, TAttributes, TRelationships>
         : IRequestBuilder<TResponse, TAttributes, TRelationships>
-        where TResponse : IPatreonResponse<TAttributes, TRelationships>
+        where TResponse : PatreonResponseBase<TAttributes, TRelationships>
         where TRelationships : IRelationship
     {
         internal bool WithParams { get; }

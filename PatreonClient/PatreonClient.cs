@@ -28,10 +28,10 @@ namespace PatreonClient
             PropertyNameCaseInsensitive = true
         };
 
-        public Task<TResponse> SendAsync<TResponse, TAttribute, TRelationship>(
+        public Task<TResponse> GetAsync<TResponse, TAttribute, TRelationship>(
             IPatreonRequest<TResponse, TAttribute, TRelationship> request,
             string parameter = null)
-            where TResponse : IPatreonResponse<TAttribute, TRelationship>
+            where TResponse : PatreonResponseBase<TAttribute, TRelationship>
             where TRelationship : IRelationship
         {
             if (request is ParameterizedPatreonRequest<TResponse, TAttribute, TRelationship>)
@@ -51,8 +51,23 @@ namespace PatreonClient
             throw new ArgumentException($"invalid {nameof(request)}");
         }
 
+        public async IAsyncEnumerable<TResponse> GetAllAsync<TResponse, TAttribute, TRelationship>(
+            IPatreonRequest<TResponse, TAttribute, TRelationship> request,
+            string parameter = null)
+            where TResponse : PatreonCollectionResponse<TAttribute, TRelationship>
+            where TRelationship : IRelationship
+        {
+            var response = await GetAsync(request, parameter);
+            yield return response;
+            while (response.HasMore)
+            {
+                response = await SendAsync<TResponse, TAttribute, TRelationship>(response.Links.Next);
+                yield return response;
+            }
+        }
+
         private async Task<TResponse> SendAsync<TResponse, TAttribute, TRelationship>(string url)
-            where TResponse : IPatreonResponse<TAttribute, TRelationship>
+            where TResponse : PatreonResponseBase<TAttribute, TRelationship>
             where TRelationship : IRelationship
         {
             var content = await SendAsync(url);
@@ -140,7 +155,7 @@ namespace PatreonClient
 
         private static void DistributeIncludes<TAttr, TRel>(
             IReadOnlyCollection<PatreonData> includes,
-            IPatreonResponse<TAttr, TRel> result)
+            PatreonResponseBase<TAttr, TRel> result)
             where TRel : IRelationship
         {
             if (result is PatreonResponse<TAttr, TRel> single)

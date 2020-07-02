@@ -10,7 +10,7 @@ namespace PatreonClient
     internal class FieldSelector<TResponse, TAttributes, TRelationships>
         : RequestBuilder<TResponse, TAttributes, TRelationships>,
           IFieldSelector<TResponse, TAttributes, TRelationships>
-        where TResponse : IPatreonResponse<TAttributes, TRelationships>
+        where TResponse : PatreonResponseBase<TAttributes, TRelationships>
         where TRelationships : IRelationship
     {
         internal FieldSelector(string url, bool withParams = false) : base(null, null, url, withParams) { }

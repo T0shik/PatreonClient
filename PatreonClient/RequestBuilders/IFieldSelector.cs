@@ -7,7 +7,7 @@ namespace PatreonClient.RequestBuilders
 {
     public interface IFieldSelector<TResponse, TAttributes, TRelationships>
         : IRequestBuilder<TResponse, TAttributes, TRelationships>
-        where TResponse : IPatreonResponse<TAttributes, TRelationships>
+        where TResponse : PatreonResponseBase<TAttributes, TRelationships>
         where TRelationships : IRelationship
     {
         IRelationshipSelector<TResponse, TAttributes, TRelationships> SelectFields(
