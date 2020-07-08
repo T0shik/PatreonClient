@@ -1,11 +1,9 @@
-﻿﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using AutoFixture;
 using PatreonClient.Models;
 using PatreonClient.Responses;
-using PatreonClient.Tests.Mocks;
 
-namespace PatreonClient.Tests
+namespace PatreonClient.Tests.Mocks
 {
     public class FixtureBuilder
     {
