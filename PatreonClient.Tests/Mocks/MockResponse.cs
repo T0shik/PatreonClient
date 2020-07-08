@@ -5,8 +5,8 @@ namespace PatreonClient.Tests.Mocks
 {
     public class MockResponse
     {
-        public PatreonData Data { get; set; }
-        public List<PatreonData> Includes { get; set; }
+        public object Data { get; set; }
+        public IEnumerable<object> Included { get; set; }
 
         public Links Links { get; set; }
     }

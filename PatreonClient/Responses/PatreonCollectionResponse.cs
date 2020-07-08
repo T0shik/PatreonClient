@@ -11,7 +11,6 @@ namespace PatreonClient.Responses
     {
         [JsonPropertyName("data")] public IEnumerable<PatreonData<TAttributes, TRelationships>> Data { get; set; }
         [JsonPropertyName("meta")] public Meta Meta { get; set; }
-        [JsonPropertyName("type")] public string Type { get; set; }
 
         public bool HasMore => !string.IsNullOrEmpty(Links?.Next);
 
