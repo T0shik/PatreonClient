@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using PatreonClient.Models;
-using PatreonClient.RequestBuilders;
 using PatreonClient.Responses;
 
-namespace PatreonClient
+namespace PatreonClient.RequestBuilders
 {
     internal class FieldSelector<TResponse, TAttributes, TRelationships>
         : RequestBuilder<TResponse, TAttributes, TRelationships>,
