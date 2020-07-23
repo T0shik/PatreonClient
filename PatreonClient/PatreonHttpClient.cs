@@ -28,7 +28,7 @@ namespace PatreonClient
             PropertyNameCaseInsensitive = true
         };
 
-        public Task<TResponse> GetAsync<TResponse, TAttribute, TRelationship>(
+        public async Task<TResponse> GetAsync<TResponse, TAttribute, TRelationship>(
             IPatreonRequest<TResponse, TAttribute, TRelationship> request,
             string parameter = null)
             where TResponse : PatreonResponseBase<TAttribute, TRelationship>
@@ -40,12 +40,12 @@ namespace PatreonClient
                 {
                     throw new ArgumentException($"{nameof(parameter)} is required for {typeof(TAttribute).Name}");
                 }
-                return SendAsync<TResponse, TAttribute, TRelationship>(string.Format(request.Url, parameter));
+                return await SendAsync<TResponse, TAttribute, TRelationship>(string.Format(request.Url, parameter));
             }
 
             if (request is PatreonRequest<TResponse, TAttribute, TRelationship>)
             {
-                return SendAsync<TResponse, TAttribute, TRelationship>(request.Url);
+                return await SendAsync<TResponse, TAttribute, TRelationship>(request.Url);
             }
 
             throw new ArgumentException($"invalid {nameof(request)}");
