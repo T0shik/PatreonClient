@@ -18,52 +18,11 @@ namespace PatreonClient.Models.Relationships
 
         public void AssignRelationship(IReadOnlyCollection<PatreonData> includes)
         {
-            if (Address?.Data != null)
-            {
-                Address.Data = includes.FirstOrDefault(x => x.Id == Address.Data.Id) as
-                                   PatreonData<Address, AddressRelationships>;
-
-                Address.Data?.Relationships?.AssignRelationship(includes);
-            }
-
-            if (Campaign?.Data != null)
-            {
-                Campaign.Data = includes.FirstOrDefault(x => x.Id == Campaign.Data.Id) as
-                                    PatreonData<Campaign, CampaignRelationships>;
-
-                Campaign.Data?.Relationships?.AssignRelationship(includes);
-            }
-
-            if (User?.Data != null)
-            {
-                User.Data = includes.FirstOrDefault(x => x.Id == User.Data.Id) as
-                                PatreonData<User, UserRelationships>;
-
-                User.Data?.Relationships?.AssignRelationship(includes);
-            }
-
-            if (Tiers != null)
-            {
-                foreach (var tier in Tiers.Data)
-                {
-                    var include = includes.FirstOrDefault(x => x.Id == tier.Id) as PatreonData<Tier, TierRelationships>;
-                    tier.Attributes = include?.Attributes;
-                    tier.Relationships = include?.Relationships;
-                    tier.Relationships?.AssignRelationship(includes);
-                }
-            }
-
-            if (PledgeHistory != null)
-            {
-                foreach (var pledge in PledgeHistory.Data)
-                {
-                    var include = includes.FirstOrDefault(x => x.Id == pledge.Id)
-                                      as PatreonData<Pledge, PledgeRelationships>;
-                    pledge.Attributes = include?.Attributes;
-                    pledge.Relationships = include?.Relationships;
-                    pledge.Relationships?.AssignRelationship(includes);
-                }
-            }
+            this.AssignDataAndRelationship(includes, Address)
+	            .AssignDataAndRelationship(includes, Campaign)
+	            .AssignCollectionAttributesAndRelationships(includes, Tiers)
+	            .AssignDataAndRelationship(includes, User)
+	            .AssignCollectionAttributesAndRelationships(includes, PledgeHistory);
         }
-    }
+   }
 }

@@ -15,34 +15,10 @@ namespace PatreonClient.Models.Relationships
 
         public void AssignRelationship(IReadOnlyCollection<PatreonData> includes)
         {
-            if (Campaign?.Data != null)
-            {
-                Campaign.Data = includes.FirstOrDefault(x => x.Id == Campaign.Data.Id) as
-                                    PatreonData<Campaign, CampaignRelationships>;
-
-                Campaign.Data?.Relationships?.AssignRelationship(includes);
-            }
-            if (Benefit?.Data != null)
-            {
-                Benefit.Data = includes.FirstOrDefault(x => x.Id == Benefit.Data.Id) as
-                                   PatreonData<Benefit, BenefitRelationships>;
-
-                Benefit.Data?.Relationships?.AssignRelationship(includes);
-            }
-            if (Member?.Data != null)
-            {
-                Member.Data = includes.FirstOrDefault(x => x.Id == Member.Data.Id) as
-                                  PatreonData<Member, MemberRelationships>;
-
-                Member.Data?.Relationships?.AssignRelationship(includes);
-            }
-            if (User?.Data != null)
-            {
-                User.Data = includes.FirstOrDefault(x => x.Id == User.Data.Id) as
-                                PatreonData<User, UserRelationships>;
-
-                User.Data?.Relationships?.AssignRelationship(includes);
-            }
+            this.AssignDataAndRelationship(includes, Campaign)
+	            .AssignDataAndRelationship(includes, Benefit)
+	            .AssignDataAndRelationship(includes, Member)
+	            .AssignDataAndRelationship(includes, User);
         }
     }
 }

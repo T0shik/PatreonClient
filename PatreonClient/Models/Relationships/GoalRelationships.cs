@@ -12,13 +12,7 @@ namespace PatreonClient.Models.Relationships
 
         public void AssignRelationship(IReadOnlyCollection<PatreonData> includes)
         {
-            if (Campaign != null)
-            {
-                Campaign.Data = includes.FirstOrDefault(x => x.Id == Campaign.Data.Id) as
-                                    PatreonData<Campaign, CampaignRelationships>;
-
-                Campaign.Data?.Relationships?.AssignRelationship(includes);
-            }
+            this.AssignDataAndRelationship(includes, Campaign);
         }
     }
 }
