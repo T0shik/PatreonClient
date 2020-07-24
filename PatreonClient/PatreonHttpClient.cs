@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -21,6 +22,16 @@ namespace PatreonClient
         private readonly HttpClient _client;
         private readonly ILogger<PatreonHttpClient> _logger;
 
+        public PatreonHttpClient(HttpClient client, ILogger<PatreonHttpClient> logger, string AccessToken) 
+        {
+            _client = client;
+            _logger = logger;
+
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            _client.BaseAddress = new Uri("https://www.patreon.com");
+        }
+
+        // For backwards compat
         public PatreonHttpClient(HttpClient client, ILogger<PatreonHttpClient> logger)
         {
             _client = client;
@@ -52,7 +63,7 @@ namespace PatreonClient
                 return await SendAsync<TResponse, TAttribute, TRelationship>(request.Url);
             }
 
-            throw new ArgumentException($"invalid {nameof(request)}");
+            throw new ArgumentException($"Invalid {nameof(request)}");
         }
 
         public async IAsyncEnumerable<TResponse> GetAllAsync<TResponse, TAttribute, TRelationship>(
