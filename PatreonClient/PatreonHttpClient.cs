@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using PatreonClient.Models;
 using PatreonClient.Models.Attributes;
 using PatreonClient.Models.Relationships;
@@ -17,10 +19,12 @@ namespace PatreonClient
     public class PatreonHttpClient
     {
         private readonly HttpClient _client;
+        private readonly ILogger<PatreonHttpClient> _logger;
 
-        public PatreonHttpClient(HttpClient client)
+        public PatreonHttpClient(HttpClient client, ILogger<PatreonHttpClient> logger)
         {
             _client = client;
+            _logger = logger;
         }
 
         private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
@@ -70,9 +74,9 @@ namespace PatreonClient
             where TResponse : PatreonResponseBase<TAttribute, TRelationship>
             where TRelationship : IRelationship
         {
-            var content = await SendAsync(url);
-            Console.WriteLine(content);
-
+            var content = await _client.GetStringAsync(url);
+            _logger?.LogTrace(content);
+            
             var result = JsonSerializer.Deserialize<TResponse>(content, JsonSerializerOptions);
 
             var includes = AggregateIncludes(content).ToList();
@@ -80,19 +84,6 @@ namespace PatreonClient
                 DistributeIncludes(includes, result);
 
             return result;
-        }
-
-        private async Task<string> SendAsync(string url)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            var response = await _client.SendAsync(request);
-            var content = await response.Content.ReadAsStringAsync();
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                throw new Exception($"Bad Request {content}");
-            }
-
-            return content;
         }
 
         private IEnumerable<PatreonData> AggregateIncludes(string content)
