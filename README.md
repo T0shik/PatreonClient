@@ -7,11 +7,7 @@ Currently, you need to build the code yourself, and you need to pass in some par
 
 ```csharp
 
-var baseClient = new HttpClient{BaseAddress =  new Uri("https://www.patreon.com")};
-
-baseClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Creator's Access Token");
-
-var client = new PatreonHttpClient(baseClient, null );
+var client = new PatreonHttpClient(new HttpClient(), null, "Creator's Token goes here");
 
 var request = RequestBuilder.Identity.SelectFields().Include(e => e.Campaign).Build();
 
