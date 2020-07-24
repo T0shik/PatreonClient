@@ -25,7 +25,7 @@ namespace PatreonClient.Models.Attributes
 
         [JsonPropertyName("thumb_url")] public string ThumbUrl { get; set; }
 
-        [JsonPropertyName("can_see_nsfw")] public bool CanSeeNsfw { get; set; }
+        [JsonPropertyName("can_see_nsfw")] public bool? CanSeeNsfw { get; set; }
 
         [JsonPropertyName("created")] public DateTimeOffset? Created { get; set; }
 
