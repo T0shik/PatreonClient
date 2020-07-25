@@ -6,17 +6,17 @@ using PatreonClient.Responses;
 
 namespace PatreonClient.Models.Relationships
 {
-    public class TierRelationships : IRelationship
+    public class TierRelationships : BaseRelationShip, IRelationship
     {
         [JsonPropertyName("campaign")] public PatreonResponse<Campaign, CampaignRelationships> Campaign { get; set; }
         [JsonPropertyName("tier_image")] public PatreonResponse<Media> TierImage { get; set; }
-        [JsonPropertyName("benefits")] public PatreonCollectionResponse<Benefit, BenefitRelationships> Benefits { get; set; }
 
-        public void AssignRelationship(IReadOnlyCollection<PatreonData> includes)
-        {
-            this.AssignDataAndRelationship(includes, Campaign)
-	            .AssignData(includes, TierImage)
-	            .AssignCollectionAttributesAndRelationships(includes, Benefits);
-        }
+        [JsonPropertyName("benefits")]
+        public PatreonCollectionResponse<Benefit, BenefitRelationships> Benefits { get; set; }
+
+        public new void AssignRelationship(IReadOnlyCollection<PatreonData> includes) =>
+            AssignDataAndRelationship(includes, Campaign)
+                .AssignData(includes, TierImage)
+                .AssignCollectionAttributesAndRelationships(includes, Benefits);
     }
 }

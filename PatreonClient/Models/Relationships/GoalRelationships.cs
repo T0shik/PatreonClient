@@ -6,13 +6,11 @@ using PatreonClient.Responses;
 
 namespace PatreonClient.Models.Relationships
 {
-    public class GoalRelationships : IRelationship
+    public class GoalRelationships : BaseRelationShip, IRelationship
     {
         [JsonPropertyName("campaign")] public PatreonResponse<Campaign, CampaignRelationships> Campaign { get; set; }
 
-        public void AssignRelationship(IReadOnlyCollection<PatreonData> includes)
-        {
-            this.AssignDataAndRelationship(includes, Campaign);
-        }
+        public new void AssignRelationship(IReadOnlyCollection<PatreonData> includes) =>
+            AssignDataAndRelationship(includes, Campaign);
     }
 }
