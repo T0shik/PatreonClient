@@ -4,9 +4,11 @@ using PatreonClient.Responses;
 
 namespace PatreonClient.Models
 {
-    public abstract class BaseRelationShip : IRelationship
+    public abstract class BaseRelationship : IRelationship
     {
-        protected internal BaseRelationShip AssignData<TAttributes>(IReadOnlyCollection<PatreonData> includes,
+        public abstract void AssignRelationship(IReadOnlyCollection<PatreonData> includes);
+
+        protected internal BaseRelationship AssignData<TAttributes>(IReadOnlyCollection<PatreonData> includes,
             PatreonResponse<TAttributes> baseType)
         {
             if (baseType?.Data == null) return this;
@@ -16,7 +18,7 @@ namespace PatreonClient.Models
             return this;
         }
 
-        protected internal BaseRelationShip AssignDataAndRelationship<TAttributes, TRelationships>(
+        protected internal BaseRelationship AssignDataAndRelationship<TAttributes, TRelationships>(
             IReadOnlyCollection<PatreonData> includes, PatreonResponse<TAttributes, TRelationships> baseType)
             where TRelationships : IRelationship
         {
@@ -30,7 +32,7 @@ namespace PatreonClient.Models
             return this;
         }
 
-        protected internal BaseRelationShip AssignCollectionAttributesAndRelationships<TAttributes, TRelationships>(
+        protected internal BaseRelationship AssignCollectionAttributesAndRelationships<TAttributes, TRelationships>(
             IReadOnlyCollection<PatreonData> includes,
             PatreonCollectionResponse<TAttributes, TRelationships> baseCollection) where TRelationships : IRelationship
         {
@@ -51,11 +53,6 @@ namespace PatreonClient.Models
             }
 
             return this;
-        }
-
-        public void AssignRelationship(IReadOnlyCollection<PatreonData> includes)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

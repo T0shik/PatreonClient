@@ -8,7 +8,7 @@ using PatreonClient.Responses;
 
 namespace PatreonClient.Models.Relationships
 {
-    public class CampaignRelationships : BaseRelationShip, IRelationship
+    public class CampaignRelationships : BaseRelationship
     {
         [JsonPropertyName("creator")] public PatreonResponse<User, UserRelationships> Creator { get; set; }
         [JsonPropertyName("tiers")] public PatreonCollectionResponse<Tier, TierRelationships> Tiers { get; set; }
@@ -18,7 +18,7 @@ namespace PatreonClient.Models.Relationships
 
         [JsonPropertyName("goals")] public PatreonCollectionResponse<Goal, GoalRelationships> Goals { get; set; }
 
-        public new void AssignRelationship(IReadOnlyCollection<PatreonData> includes) =>
+        public override void AssignRelationship(IReadOnlyCollection<PatreonData> includes) =>
             AssignDataAndRelationship(includes, Creator)
                 .AssignCollectionAttributesAndRelationships(includes, Tiers)
                 .AssignCollectionAttributesAndRelationships(includes, Benefits)
