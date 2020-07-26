@@ -78,7 +78,10 @@ namespace PatreonClient
             where TResponse : PatreonResponseBase<TAttribute, TRelationship>
             where TRelationship : IRelationship
         {
+            _logger?.LogDebug($"Calling {url}");
+            
             var content = await _client.GetStringAsync(url);
+            
             _logger?.LogTrace(content);
             
             var result = JsonSerializer.Deserialize<TResponse>(content, JsonSerializerOptions);
