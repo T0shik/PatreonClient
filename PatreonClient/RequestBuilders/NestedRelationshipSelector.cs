@@ -49,7 +49,7 @@ namespace PatreonClient.RequestBuilders
 
             var attribute = (JsonPropertyNameAttribute) body.Member.GetCustomAttribute(typeof(JsonPropertyNameAttribute));
 
-            var path = string.Concat(_path, ".", attribute.Name);
+            var path = $"{_path}.{attribute.Name}";
             if (Includes.Contains(path)) return path;
 
             Includes.Add(path);
