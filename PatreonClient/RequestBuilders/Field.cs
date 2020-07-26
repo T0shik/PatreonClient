@@ -54,7 +54,10 @@ namespace PatreonClient.RequestBuilders
 
         public string ToString(string prefix)
         {
-            if (Fields.Count <= 0) return "";
+            if (Fields.Count <= 0)
+            {
+                return string.Empty;
+            }
 
             var fieldName = Type.Name.ToLowerInvariant();
             return string.Concat(prefix, "fields%5B", fieldName, "%5D=", string.Join(',', Fields));
