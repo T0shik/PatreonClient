@@ -24,9 +24,13 @@ namespace PatreonClient
 
         public PatreonHttpClient(HttpClient client, ILogger<PatreonHttpClient> logger, string AccessToken) 
         {
-            _client = client;
-            _logger = logger;
+            if (string.IsNullOrWhiteSpace(AccessToken))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(AccessToken));
+            }
 
+            _client = client ?? throw new ArgumentNullException(nameof(client));
+            _logger = logger;
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             _client.BaseAddress = new Uri("https://www.patreon.com");
         }
