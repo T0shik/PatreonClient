@@ -31,13 +31,6 @@ namespace PatreonClient
             _client.BaseAddress = new Uri("https://www.patreon.com");
         }
 
-        // For backwards compat
-        public PatreonHttpClient(HttpClient client, ILogger<PatreonHttpClient> logger)
-        {
-            _client = client;
-            _logger = logger;
-        }
-
         private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
