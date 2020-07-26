@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PatreonClient.Models;
 using PatreonClient.Requests;
@@ -18,7 +17,7 @@ namespace PatreonClient.Responses
         {
             if (!HasMore)
             {
-                throw new InvalidOperationException("No more data to fetch");
+                throw new NoMoreDataException();
             }
             return new PatreonRequest<PatreonCollectionResponse<TAttributes, TRelationships>, TAttributes, TRelationships>(Links.Next);
         }
