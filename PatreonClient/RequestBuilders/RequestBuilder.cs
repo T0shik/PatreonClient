@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.WebUtilities;
 using PatreonClient.Models;
 using PatreonClient.Requests;
 using PatreonClient.Responses;
@@ -33,22 +36,19 @@ namespace PatreonClient.RequestBuilders
 
         private string BuildUrl()
         {
-            var result = "";
-            var hasInclude = Includes.Count > 0;
-            var ampersand = false;
-            if (hasInclude)
+            var queryString = new Dictionary<string, string>();
+
+            if (Includes.Any())
             {
-                result = string.Concat("?include=", string.Join(',', Includes));
-                ampersand = true;
+                queryString.Add("include", string.Join(',', Includes));
             }
 
             foreach (var field in Fields)
             {
-                result = string.Concat(result, field.ToString(ampersand ? "&" : "?"));
-                ampersand = true;
+                queryString.Add($"fields[{field.Type.Name.ToLowerInvariant()}]", string.Join(',', field.Fields));
             }
 
-            return string.Concat(Url, result);
+            return QueryHelpers.AddQueryString(Url, queryString);
         }
     }
 }

@@ -10,8 +10,8 @@ namespace PatreonClient.RequestBuilders
 {
     internal class Field
     {
-        private Type Type { get; }
-        private List<string> Fields { get; }
+        internal Type Type { get; }
+        internal List<string> Fields { get; }
 
         private Field(Type type, List<string> fields)
         {
@@ -50,17 +50,6 @@ namespace PatreonClient.RequestBuilders
             }
 
             return new Field(typeof(TAttribute), fields);
-        }
-
-        public string ToString(string prefix)
-        {
-            if (Fields.Count <= 0)
-            {
-                return string.Empty;
-            }
-
-            var fieldName = Type.Name.ToLowerInvariant();
-            return string.Concat(prefix, "fields%5B", fieldName, "%5D=", string.Join(',', Fields));
         }
 
         private class InvalidFieldSelectorException : Exception
