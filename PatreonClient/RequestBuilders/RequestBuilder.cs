@@ -34,7 +34,7 @@ namespace PatreonClient.RequestBuilders
                        : new PatreonRequest<TResponse, TAttributes, TRelationships>(url);
         }
 
-        private string BuildUrl()
+        internal string BuildUrl()
         {
             var queryString = new Dictionary<string, string>();
 
