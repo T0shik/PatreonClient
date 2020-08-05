@@ -57,7 +57,7 @@ namespace PatreonClient.Tests
                 BaseAddress = new Uri("https://www.test.com/")
             };
 
-            return new PatreonHttpClient(client, null, string.Empty);
+            return new PatreonHttpClient(client, null, "a");
         }
 
         [Fact]
