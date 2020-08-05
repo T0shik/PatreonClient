@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using PatreonClient.Models.Relationships;
 
 namespace PatreonClient.Models.Attributes
 {
+    [ItemRelationship("deliverable", typeof(DeliverableRelationships))]
     public class Deliverable
     {
         [JsonPropertyName("completed_at")] public DateTimeOffset? CompletedAt { get; set; }

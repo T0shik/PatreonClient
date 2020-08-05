@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using PatreonClient.Models.Relationships;
 
 namespace PatreonClient.Models.Attributes
 {
+    [ItemRelationship("campaign", typeof(CampaignRelationships))]
     public class Campaign
     {
         [JsonPropertyName("summary")] public string Summary { get; set; }

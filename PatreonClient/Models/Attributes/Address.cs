@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using PatreonClient.Models.Relationships;
 
 namespace PatreonClient.Models.Attributes
 {
+    [ItemRelationship("address", typeof(AddressRelationships))]
     public class Address
     {
         [JsonPropertyName("addressee")] public string Recipient { get; set; }

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace PatreonClient.Models.Attributes
 {
+    [ItemRelationship("media")]
     public class Media
     {
         [JsonPropertyName("file_name")] public string FileName { get; set; }

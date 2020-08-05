@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.Design.Serialization;
 using System.Text.Json.Serialization;
 
 namespace PatreonClient.Models.Attributes
 {
+    [ItemRelationship("member", typeof(MemberRelationship))]
     public class Member
     {
         [JsonPropertyName("patron_status")] public string PatreonStatus { get; set; }
