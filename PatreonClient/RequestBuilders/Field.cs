@@ -54,7 +54,7 @@ namespace PatreonClient.RequestBuilders
 
         private class InvalidFieldSelectorException : Exception
         {
-            private const string c_error =
+            private const string error =
                 @"Use NewBody Expression to specify the list of fields to query from patreon api
 Example:
 x => new {
@@ -63,7 +63,7 @@ x => new {
     ...
 };";
 
-            public InvalidFieldSelectorException() : base(c_error) { }
+            public InvalidFieldSelectorException() : base(error) { }
         }
     }
 }

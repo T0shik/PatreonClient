@@ -15,7 +15,7 @@ namespace PatreonClient.RequestBuilders
         where TOrigin : IRelationship
         where TNext : IRelationship
     {
-        private readonly string _path;
+        private readonly string path;
 
         public NestedRelationshipSelector(
             string path,
@@ -25,7 +25,7 @@ namespace PatreonClient.RequestBuilders
             bool withParams)
             : base(fields, includes, url, withParams)
         {
-            _path = path;
+            this.path = path;
         }
 
         public INestedRelationshipSelector<TResponse, TAttributes, TOrigin, TRel> ThenInclude<TAttr, TRel>(
@@ -49,7 +49,7 @@ namespace PatreonClient.RequestBuilders
 
             var attribute = (JsonPropertyNameAttribute) body.Member.GetCustomAttribute(typeof(JsonPropertyNameAttribute));
 
-            var path = $"{_path}.{attribute.Name}";
+            var path = $"{this.path}.{attribute.Name}";
             if (Includes.Contains(path)) return path;
 
             Includes.Add(path);

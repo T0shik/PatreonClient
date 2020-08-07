@@ -20,8 +20,8 @@ namespace PatreonClient
 {
     public class PatreonHttpClient
     {
-        private readonly HttpClient _client;
-        private readonly ILogger<PatreonHttpClient> _logger;
+        private readonly HttpClient client;
+        private readonly ILogger<PatreonHttpClient> logger;
 
         public PatreonHttpClient(HttpClient client, ILogger<PatreonHttpClient> logger, string AccessToken) 
         {
@@ -30,10 +30,10 @@ namespace PatreonClient
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(AccessToken));
             }
 
-            _client = client ?? throw new ArgumentNullException(nameof(client));
-            _logger = logger;
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-            _client.BaseAddress = new Uri("https://www.patreon.com");
+            this.client = client ?? throw new ArgumentNullException(nameof(client));
+            this.logger = logger;
+            this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            this.client.BaseAddress = new Uri("https://www.patreon.com");
         }
 
         private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
@@ -83,11 +83,11 @@ namespace PatreonClient
             where TResponse : PatreonResponseBase<TAttribute, TRelationship>
             where TRelationship : IRelationship
         {
-            _logger?.LogDebug($"Calling {url}");
+            logger?.LogDebug($"Calling {url}");
             
-            var content = await _client.GetStringAsync(url);
+            var content = await client.GetStringAsync(url);
             
-            _logger?.LogTrace(content);
+            logger?.LogTrace(content);
             
             var result = JsonSerializer.Deserialize<TResponse>(content, JsonSerializerOptions);
 
