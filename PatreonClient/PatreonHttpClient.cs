@@ -131,7 +131,7 @@ namespace PatreonClient
 
             foreach (var el in included.EnumerateArray())
             {
-                yield return typeMappingCollection.First(e => e.Type == el.EnumerateObject().FirstOrDefault(x => x.Name == "type").Value.ToString()).Deserialize(el.ToString());
+                yield return typeMappingCollection.First(e => e.Type == el.EnumerateObject().FirstOrDefault(x => x.Name == "type").Value.ToString()).Deserialize(el.GetRawText());
             }
         }
 
