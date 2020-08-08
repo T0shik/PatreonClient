@@ -23,7 +23,7 @@ namespace PatreonClient
         private readonly HttpClient client;
         private readonly ILogger<PatreonHttpClient> logger;
 
-        private IEnumerable<ItemRelationshipMapping> typeMappings;
+        private IEnumerable<ItemRelationshipMapping> typeMappingCollection;
 
         public PatreonHttpClient(HttpClient client, ILogger<PatreonHttpClient> logger, string AccessToken) 
         {
@@ -37,7 +37,7 @@ namespace PatreonClient
             this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             this.client.BaseAddress = new Uri("https://www.patreon.com");
 
-            typeMappings = getAllTypeMappings();
+            typeMappingCollection = getAllTypeMappings();
         }
 
         private IEnumerable<ItemRelationshipMapping> getAllTypeMappings()
@@ -53,14 +53,12 @@ namespace PatreonClient
                     mapping.Type = attribute.JsonName;
 
                     mapping.DecodedType = attribute.RelationshipType != null ? typeof(PatreonData<,>).MakeGenericType(type, attribute.RelationshipType) : typeof(PatreonData<,>).MakeGenericType(type);
-                    mapping.Deserializer = typeof(JsonSerializer).GetMethods().FirstOrDefault(e => e.Name == "Deserialize").MakeGenericMethod(mapping.DecodedType);
+                    mapping.Deserializer = typeof(JsonSerializer).GetMethods().First(e => e.Name == "Deserialize").MakeGenericMethod(mapping.DecodedType);
 
                     yield return mapping;
                 }
             }
         }
-
-
 
         public Task<TResponse> GetAsync<TResponse, TAttribute, TRelationship>(
             IPatreonRequest<TResponse, TAttribute, TRelationship> request,
@@ -113,8 +111,11 @@ namespace PatreonClient
             var result = JsonSerializer.Deserialize<TResponse>(content, Settings.JsonSerializerOptions);
 
             var includes = AggregateIncludes(content).ToList();
+
             if (includes.Count > 0)
+            {
                 DistributeIncludes(includes, result);
+            }
 
             return result;
         }
@@ -122,6 +123,7 @@ namespace PatreonClient
         private IEnumerable<PatreonData> AggregateIncludes(string content)
         {
             var doc = JsonDocument.Parse(Encoding.UTF8.GetBytes(content));
+
             if (!doc.RootElement.TryGetProperty("included", out var included))
             {
                 yield break;
@@ -129,10 +131,7 @@ namespace PatreonClient
 
             foreach (var el in included.EnumerateArray())
             {
-                var type = el.EnumerateObject().FirstOrDefault(x => x.Name == "type").Value.ToString();
-
-                typeMappings.First(e => e.Type == type).Deserialize(el.ToString());
-
+                yield return typeMappingCollection.First(e => e.Type == el.EnumerateObject().FirstOrDefault(x => x.Name == "type").Value.ToString()).Deserialize(el.ToString());
             }
         }
 
@@ -142,11 +141,18 @@ namespace PatreonClient
             where TRel : IRelationship
         {
             if (result is PatreonResponse<TAttr, TRel> single)
+            {
                 single.Data.Relationships.AssignRelationship(includes);
+            }
 
             else if (result is PatreonCollectionResponse<TAttr, TRel> collection)
+            {
                 foreach (var d in collection.Data)
+                {
                     d.Relationships.AssignRelationship(includes);
+                }
+
+            }
         }
     }
 }

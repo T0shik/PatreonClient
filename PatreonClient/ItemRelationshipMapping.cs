@@ -4,7 +4,7 @@ using PatreonClient.Models;
 
 namespace PatreonClient
 {
-    public class ItemRelationshipMapping
+    internal class ItemRelationshipMapping
     {
         public string Type { get; set; }
         internal Type DecodedType { get; set; }
