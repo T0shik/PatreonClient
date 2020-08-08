@@ -23,6 +23,8 @@ namespace PatreonClient
         private readonly HttpClient client;
         private readonly ILogger<PatreonHttpClient> logger;
 
+        private IEnumerable<ItemRelationshipMapping> typeMappings;
+
         public PatreonHttpClient(HttpClient client, ILogger<PatreonHttpClient> logger, string AccessToken) 
         {
             if (string.IsNullOrWhiteSpace(AccessToken))
@@ -34,12 +36,31 @@ namespace PatreonClient
             this.logger = logger;
             this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             this.client.BaseAddress = new Uri("https://www.patreon.com");
+
+            typeMappings = getAllTypeMappings();
         }
 
-        private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
+        private IEnumerable<ItemRelationshipMapping> getAllTypeMappings()
         {
-            PropertyNameCaseInsensitive = true
-        };
+            var types = GetType().Assembly.GetTypes().Where(e=>e.GetCustomAttribute<ItemRelationshipAttribute>() != null);
+
+            foreach (var type in types)
+            {
+                foreach (var attribute in type.GetCustomAttributes<ItemRelationshipAttribute>())
+                {
+                    var mapping = new ItemRelationshipMapping();
+
+                    mapping.Type = attribute.JsonName;
+
+                    mapping.DecodedType = attribute.RelationshipType != null ? typeof(PatreonData<,>).MakeGenericType(type, attribute.RelationshipType) : typeof(PatreonData<,>).MakeGenericType(type);
+                    mapping.Deserializer = typeof(JsonSerializer).GetMethods().FirstOrDefault(e => e.Name == "Deserialize").MakeGenericMethod(mapping.DecodedType);
+
+                    yield return mapping;
+                }
+            }
+        }
+
+
 
         public Task<TResponse> GetAsync<TResponse, TAttribute, TRelationship>(
             IPatreonRequest<TResponse, TAttribute, TRelationship> request,
@@ -89,7 +110,7 @@ namespace PatreonClient
             
             logger?.LogTrace(content);
             
-            var result = JsonSerializer.Deserialize<TResponse>(content, JsonSerializerOptions);
+            var result = JsonSerializer.Deserialize<TResponse>(content, Settings.JsonSerializerOptions);
 
             var includes = AggregateIncludes(content).ToList();
             if (includes.Count > 0)
@@ -105,31 +126,13 @@ namespace PatreonClient
             {
                 yield break;
             }
-            
+
             foreach (var el in included.EnumerateArray())
             {
                 var type = el.EnumerateObject().FirstOrDefault(x => x.Name == "type").Value.ToString();
 
-                var decodeType = GetType().Assembly.GetTypes().First(e => e.GetCustomAttributes(typeof(ItemRelationshipAttribute), false) is ItemRelationshipAttribute[] a && a.Any(f => f.JsonName == type));
+                typeMappings.First(e => e.Type == type).Deserialize(el.ToString());
 
-                var attr = decodeType.GetCustomAttribute<ItemRelationshipAttribute>();
-                
-                if (attr.RelationshipType is null)
-                {
-                    var patreonDataClass = typeof(PatreonData<>).MakeGenericType(new[] {decodeType});
-
-                    var method = typeof(JsonSerializer).GetMethods().FirstOrDefault(e => e.Name == "Deserialize").MakeGenericMethod(patreonDataClass);
-
-                    yield return method.Invoke(null, new object[]{el.ToString(), JsonSerializerOptions}) as PatreonData;
-                }
-                else
-                {
-                    var patreonDataClass = typeof(PatreonData<,>).MakeGenericType(new[] { decodeType, attr.RelationshipType });
-
-                    var method = typeof(JsonSerializer).GetMethods().FirstOrDefault(e => e.Name == "Deserialize").MakeGenericMethod(patreonDataClass);
-
-                    yield return method.Invoke(null, new object[] { el.ToString(), JsonSerializerOptions }) as PatreonData;
-                }
             }
         }
 
