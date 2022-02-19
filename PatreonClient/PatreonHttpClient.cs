@@ -51,6 +51,25 @@ namespace PatreonClient
             throw new ArgumentException($"invalid {nameof(request)}");
         }
 
+        public async Task<List<PatreonData<TAttribute, TRelationship>>> ListAllAsync<TResponse, TAttribute, TRelationship>(
+            IPatreonRequest<TResponse, TAttribute, TRelationship> request,
+            string parameter = null
+            )
+            where TResponse : PatreonCollectionResponse<TAttribute, TRelationship>
+            where TRelationship : IRelationship
+        {
+            var result = new List<PatreonData<TAttribute, TRelationship>>();
+            var response = await GetAsync(request, parameter);
+            result.AddRange(response.Data);
+            while (response.HasMore)
+            {
+                response = await SendAsync<TResponse, TAttribute, TRelationship>(response.Links.Next);
+                result.AddRange(response.Data);
+            }
+
+            return result;
+        }
+
         public async IAsyncEnumerable<TResponse> GetAllAsync<TResponse, TAttribute, TRelationship>(
             IPatreonRequest<TResponse, TAttribute, TRelationship> request,
             string parameter = null)
@@ -71,7 +90,6 @@ namespace PatreonClient
             where TRelationship : IRelationship
         {
             var content = await SendAsync(url);
-            Console.WriteLine(content);
 
             var result = JsonSerializer.Deserialize<TResponse>(content, JsonSerializerOptions);
 
