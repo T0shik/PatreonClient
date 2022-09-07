@@ -109,7 +109,7 @@ namespace PatreonClient
             {
                 throw new Exception($"Bad Request {content}");
             }
-
+            
             return content;
         }
 

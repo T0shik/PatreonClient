@@ -45,9 +45,9 @@ namespace PatreonClient.RequestBuilders
 
             var attribute = (JsonPropertyNameAttribute)body.Member.GetCustomAttribute(typeof(JsonPropertyNameAttribute));
             var includesIdentifier = attribute.Name;
-
+            
             var alias = typeof(TAttr).GetCustomAttribute(typeof(JsonAliasAttribute)) as JsonAliasAttribute;
-            var fieldIdentifier = alias?.Name ?? attribute.Name;
+            var fieldIdentifier = alias?.Name ?? typeof(TAttr).Name.ToLowerInvariant();
 
             if (Includes.Contains(includesIdentifier)) return includesIdentifier;
 
