@@ -19,7 +19,8 @@ namespace PatreonClient.RequestBuilders
 
         public IRelationshipSelector<TResponse, TAttributes, TRelationships> SelectFields(Expression<Func<TAttributes, object>> selector)
         {
-            Fields.Add(selector == null ? Field.All<TAttributes>() : Field.Create<TAttributes>(selector));
+            var dataIdentifier = typeof(TAttributes).Name.ToLowerInvariant();
+            Fields.Add(selector == null ? Field.All<TAttributes>(dataIdentifier) : Field.Create<TAttributes>(dataIdentifier, selector));
             return new RelationshipSelector<TResponse, TAttributes, TRelationships>(Fields, Includes, Url, WithParams);
         }
     }

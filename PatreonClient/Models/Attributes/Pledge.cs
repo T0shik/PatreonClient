@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace PatreonClient.Models.Attributes
 {
+    [JsonAlias("pledge-event")]
     public class Pledge
     {
         [JsonPropertyName("type")] public string Type { get; set; }

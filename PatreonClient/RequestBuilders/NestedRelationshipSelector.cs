@@ -10,7 +10,7 @@ namespace PatreonClient.RequestBuilders
 {
     internal class NestedRelationshipSelector<TResponse, TAttributes, TOrigin, TNext>
         : RelationshipSelector<TResponse, TAttributes, TOrigin>,
-          INestedRelationshipSelector<TResponse, TAttributes, TOrigin, TNext>
+            INestedRelationshipSelector<TResponse, TAttributes, TOrigin, TNext>
         where TResponse : PatreonResponseBase<TAttributes, TOrigin>
         where TOrigin : IRelationship
         where TNext : IRelationship
@@ -41,19 +41,27 @@ namespace PatreonClient.RequestBuilders
             Expression relationshipSelector,
             Expression fieldSelector = null)
         {
-            if (!(relationshipSelector is LambdaExpression lambda))
+            if (relationshipSelector is not LambdaExpression lambda)
                 throw new ArgumentException(nameof(relationshipSelector));
 
-            if (!(lambda.Body is MemberExpression body))
+            if (lambda.Body is not MemberExpression body)
                 throw new ArgumentException(nameof(relationshipSelector));
 
-            var attribute = (JsonPropertyNameAttribute) body.Member.GetCustomAttribute(typeof(JsonPropertyNameAttribute));
+            var attribute = (JsonPropertyNameAttribute)body.Member.GetCustomAttribute(typeof(JsonPropertyNameAttribute));
+            var includesIdentifier = attribute.Name;
 
-            var path = string.Concat(_path, ".", attribute.Name);
+            var alias = typeof(TAttr).GetCustomAttribute(typeof(JsonAliasAttribute)) as JsonAliasAttribute;
+            var fieldIdentifier = alias?.Name ?? attribute.Name;
+
+            var path = string.Concat(_path, ".", includesIdentifier);
             if (Includes.Contains(path)) return path;
 
             Includes.Add(path);
-            Fields.Add(fieldSelector == null ? Field.All<TAttr>() : Field.Create<TAttr>(fieldSelector));
+            Fields.Add(
+                fieldSelector == null
+                    ? Field.All<TAttr>(fieldIdentifier)
+                    : Field.Create<TAttr>(fieldIdentifier, fieldSelector)
+            );
 
             return path;
         }

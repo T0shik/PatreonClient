@@ -10,12 +10,14 @@ namespace PatreonClient.RequestBuilders
 {
     internal class RelationshipSelector<TResponse, TAttributes, TRelationships>
         : FieldSelector<TResponse, TAttributes, TRelationships>,
-          IRelationshipSelector<TResponse, TAttributes, TRelationships>
+            IRelationshipSelector<TResponse, TAttributes, TRelationships>
         where TResponse : PatreonResponseBase<TAttributes, TRelationships>
         where TRelationships : IRelationship
     {
         public RelationshipSelector(List<Field> fields, List<string> includes, string url, bool withParams)
-            : base(fields, includes, url, withParams) { }
+            : base(fields, includes, url, withParams)
+        {
+        }
 
         public INestedRelationshipSelector<TResponse, TAttributes, TRelationships, TRel> Include<TAttr, TRel>(
             Expression<Func<TRelationships, PatreonResponseBase<TAttr, TRel>>> relationshipSelector,
@@ -41,14 +43,18 @@ namespace PatreonClient.RequestBuilders
             if (!(lambda.Body is MemberExpression body))
                 throw new ArgumentException(nameof(relationshipSelector));
 
-            var attribute = (JsonPropertyNameAttribute) body.Member.GetCustomAttribute(typeof(JsonPropertyNameAttribute));
+            var attribute = (JsonPropertyNameAttribute)body.Member.GetCustomAttribute(typeof(JsonPropertyNameAttribute));
+            var includesIdentifier = attribute.Name;
 
-            if (Includes.Contains(attribute.Name)) return attribute.Name;
+            var alias = typeof(TAttr).GetCustomAttribute(typeof(JsonAliasAttribute)) as JsonAliasAttribute;
+            var fieldIdentifier = alias?.Name ?? attribute.Name;
 
-            Includes.Add(attribute.Name);
-            Fields.Add(fieldSelector == null ? Field.All<TAttr>() : Field.Create<TAttr>(fieldSelector));
+            if (Includes.Contains(includesIdentifier)) return includesIdentifier;
 
-            return attribute.Name;
+            Includes.Add(includesIdentifier);
+            Fields.Add(fieldSelector == null ? Field.All<TAttr>(fieldIdentifier) : Field.Create<TAttr>(fieldIdentifier, fieldSelector));
+
+            return includesIdentifier;
         }
     }
 }

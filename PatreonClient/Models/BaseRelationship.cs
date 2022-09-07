@@ -40,10 +40,7 @@ namespace PatreonClient.Models
 
             foreach (var collectionInstance in baseCollection.Data)
             {
-                var include =
-                    includes.FirstOrDefault(x => x.Id == collectionInstance.Id) as
-                        PatreonData<TAttributes, TRelationships>;
-                if (include != null)
+                if (includes.FirstOrDefault(x => x.Id == collectionInstance.Id) is PatreonData<TAttributes, TRelationships> include)
                 {
                     collectionInstance.Attributes = include.Attributes;
                     collectionInstance.Relationships = include.Relationships;

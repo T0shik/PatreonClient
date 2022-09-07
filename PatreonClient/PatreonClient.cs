@@ -14,11 +14,11 @@ using PatreonClient.Responses;
 
 namespace PatreonClient
 {
-    public class PatreonHttpClient
+    public class PatreonClient
     {
         private readonly HttpClient _client;
 
-        public PatreonHttpClient(HttpClient client)
+        public PatreonClient(HttpClient client)
         {
             _client = client;
         }
@@ -165,6 +165,10 @@ namespace PatreonClient
                 else if (type.Equals("post"))
                 {
                     yield return JsonSerializer.Deserialize<PatreonData<Post, PostRelationships>>(el.ToString(), JsonSerializerOptions);
+                }
+                else if (type.Equals("pledge-event"))
+                {
+                    yield return JsonSerializer.Deserialize<PatreonData<Pledge, PledgeRelationships>>(el.ToString(), JsonSerializerOptions);
                 }
             }
         }

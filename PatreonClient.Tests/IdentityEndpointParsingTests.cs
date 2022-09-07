@@ -30,7 +30,7 @@ namespace PatreonClient.Tests
             _compareLogic = new CompareLogic {Config = {IgnoreObjectTypes = true}};
         }
 
-        private static PatreonHttpClient CreateClient(object data)
+        private static PatreonClient CreateClient(object data)
         {
             var json = JsonSerializer.Serialize(data,
                                                 new JsonSerializerOptions
@@ -57,7 +57,7 @@ namespace PatreonClient.Tests
                 BaseAddress = new Uri("https://www.test.com/")
             };
 
-            return new PatreonHttpClient(client);
+            return new PatreonClient(client);
         }
 
         [Fact]

@@ -10,26 +10,26 @@ namespace PatreonClient.RequestBuilders
 {
     internal class Field
     {
-        private Type Type { get; }
+        private string FieldIdentifier { get; }
         private List<string> Fields { get; }
-
-        private Field(Type type, List<string> fields)
+        
+        private Field(string fieldIdentifier, List<string> fields)
         {
-            Type = type;
+            FieldIdentifier = fieldIdentifier;
             Fields = fields;
         }
 
-        public static Field All<T>()
+        public static Field All<T>(string identifier)
         {
-            var type = typeof(T);
-            var fields = type.GetProperties()
+            var fields = typeof(T).GetProperties()
                              .Select(x => (JsonAttr) x.GetCustomAttribute(typeof(JsonAttr)))
                              .Select(x => x.Name)
                              .ToList();
-            return new Field(type, fields);
+            
+            return new Field(identifier, fields);
         }
 
-        public static Field Create<TAttribute>(Expression selector)
+        public static Field Create<TAttribute>(string fieldIdentifier, Expression selector)
         {
             var fields = new List<string>();
 
@@ -49,15 +49,14 @@ namespace PatreonClient.RequestBuilders
                 }
             }
 
-            return new Field(typeof(TAttribute), fields);
+            return new Field(fieldIdentifier, fields);
         }
 
         public string ToString(string prefix)
         {
             if (Fields.Count <= 0) return "";
 
-            var fieldName = Type.Name.ToLowerInvariant();
-            return string.Concat(prefix, "fields%5B", fieldName, "%5D=", string.Join(',', Fields));
+            return string.Concat(prefix, "fields%5B", FieldIdentifier, "%5D=", string.Join(',', Fields));
         }
 
         private class InvalidFieldSelectorException : Exception
