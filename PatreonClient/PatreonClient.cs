@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -21,6 +22,18 @@ public class PatreonClient
         _client = client;
     }
 
+    public PatreonClient(string apiKey)
+    {
+        _client = new()
+        {
+            BaseAddress = new("https://www.patreon.com"),
+            DefaultRequestHeaders =
+            {
+                Authorization =  new("Bearer", apiKey),
+            }
+        };
+    }
+
     private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
     {
         PropertyNameCaseInsensitive = true
@@ -36,78 +49,53 @@ public class PatreonClient
         return ParseResponse<TAttribute, TRelationship>(content);
     }
 
-    // public Task<TResponse> GetAsync<TResponse, TAttribute, TRelationship>(
-    //     IPatreonRequest<TResponse, TAttribute, TRelationship> request,
-    //     string parameter = null)
-    //     where TResponse : PatreonResponseBase<TAttribute, TRelationship>
-    //     where TRelationship : IRelationship
-    // {
-    //     if (request is ParameterizedPatreonRequest<TResponse, TAttribute, TRelationship>)
-    //     {
-    //         if (string.IsNullOrEmpty(parameter))
-    //         {
-    //             throw new ArgumentException($"{nameof(parameter)} is required for {typeof(TAttribute).Name}");
-    //         }
-    //
-    //         return SendAsync<TResponse, TAttribute, TRelationship>(string.Format(request.Url, parameter));
-    //     }
-    //
-    //     if (request is PatreonRequest<TResponse, TAttribute, TRelationship>)
-    //     {
-    //         return SendAsync<TResponse, TAttribute, TRelationship>(request.Url);
-    //     }
-    //
-    //     throw new ArgumentException($"invalid {nameof(request)}");
-    // }
+    public async Task<PatreonCollectionResponse<TAttribute, TRelationship>> GetAsync<TAttribute, TRelationship>(
+        PatreonRequest<PatreonCollectionResponse<TAttribute, TRelationship>> request
+    )
+        where TRelationship : IRelationship
+    {
+        var content = await SendAsync(request.Url);
 
-    // public async Task<List<PatreonData<TAttribute, TRelationship>>> ListAllAsync<TResponse, TAttribute, TRelationship>(
-    //     IPatreonRequest<TResponse, TAttribute, TRelationship> request,
-    //     string parameter = null
-    // )
-    //     where TResponse : PatreonCollectionResponse<TAttribute, TRelationship>
-    //     where TRelationship : IRelationship
-    // {
-    //     var result = new List<PatreonData<TAttribute, TRelationship>>();
-    //     var response = await GetAsync(request, parameter);
-    //     result.AddRange(response.Data);
-    //     while (response.HasMore)
-    //     {
-    //         response = await SendAsync<TResponse, TAttribute, TRelationship>(response.Links.Next);
-    //         result.AddRange(response.Data);
-    //     }
-    //
-    //     return result;
-    // }
+        return ParseCollectionResponse<TAttribute, TRelationship>(content);
+    }
 
-    // public async IAsyncEnumerable<TResponse> GetAllAsync<TResponse, TAttribute, TRelationship>(
-    //     IPatreonRequest<TResponse, TAttribute, TRelationship> request,
-    //     string parameter = null)
-    //     where TResponse : PatreonCollectionResponse<TAttribute, TRelationship>
-    //     where TRelationship : IRelationship
-    // {
-    //     var response = await GetAsync(request, parameter);
-    //     yield return response;
-    //     while (response.HasMore)
-    //     {
-    //         response = await SendAsync<TResponse, TAttribute, TRelationship>(response.Links.Next);
-    //         yield return response;
-    //     }
-    // }
+    public async Task<List<PatreonData<TAttribute, TRelationship>>> GetAllAsync<TAttribute, TRelationship>(
+        PatreonRequest<PatreonCollectionResponse<TAttribute, TRelationship>> request
+    )
+        where TRelationship : IRelationship
+    {
+        var result = new List<PatreonData<TAttribute, TRelationship>>();
+        var response = await GetAsync(request);
+        result.AddRange(response.Data);
+        while (response.HasMore)
+        {
+            response = await GetAsync(response.NextRequest());
+            result.AddRange(response.Data);
+        }
 
-    // private async Task<TResponse> SendAsync<TResponse, TAttribute, TRelationship>(string url)
-    //     where TResponse : PatreonResponseBase<TAttribute, TRelationship>
-    //     where TRelationship : IRelationship
-    // {
-    //     var content = await SendAsync(url);
-    //
-    //     var result = JsonSerializer.Deserialize<TResponse>(content, JsonSerializerOptions);
-    //
-    //     var includes = AggregateIncludes(content).ToList();
-    //     if (includes.Count > 0)
-    //         DistributeIncludes(includes, result);
-    //
-    //     return result;
-    // }
+        return result;
+    }
+
+    public async IAsyncEnumerable<PatreonData<TAttribute, TRelationship>> EnumerateAllAsync<TAttribute, TRelationship>(
+        PatreonRequest<PatreonCollectionResponse<TAttribute, TRelationship>> request
+    )
+        where TRelationship : IRelationship
+    {
+        var response = await GetAsync(request);
+        foreach (var data in response.Data)
+        {
+            yield return data;
+        }
+
+        while (response.HasMore)
+        {
+            response = await GetAsync(response.NextRequest());
+            foreach (var data in response.Data)
+            {
+                yield return data;
+            }
+        }
+    }
 
     private PatreonResponse<TAttribute, TRelationship> ParseResponse<TAttribute, TRelationship>(string content)
         where TRelationship : IRelationship
