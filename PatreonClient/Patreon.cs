@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,16 +12,16 @@ using PatreonClient.Models.Relationships;
 
 namespace PatreonClient;
 
-public class PatreonClient
+public class Patreon
 {
     private readonly HttpClient _client;
 
-    public PatreonClient(HttpClient client)
+    public Patreon(HttpClient client)
     {
         _client = client;
     }
 
-    public PatreonClient(string apiKey)
+    public Patreon(string apiKey)
     {
         _client = new()
         {
