@@ -1,8 +1,7 @@
 ﻿using PatreonClient.Models;
 using PatreonClient.Models.Attributes;
 using PatreonClient.Models.Relationships;
-using PatreonClient.Requests.Builder;
-using PatreonClient.Responses;
+using PatreonClient.RequestBuilder;
 
 namespace PatreonClient
 {

@@ -3,7 +3,6 @@ using System.Linq;
 using PatreonClient.Models;
 using PatreonClient.Models.Attributes;
 using PatreonClient.Models.Relationships;
-using PatreonClient.Responses;
 
 namespace PatreonClient.Tests.Mocks
 {

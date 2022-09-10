@@ -2,10 +2,26 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PatreonClient.Models;
-using PatreonClient.Requests;
+using PatreonClient.Models.Relationships;
 
-namespace PatreonClient.Responses
+namespace PatreonClient
 {
+    public abstract class PatreonResponseBase<TAttr, TRel>
+        where TRel : IRelationship
+    {
+        public Links Links { get; set; }
+    }
+    
+    public class PatreonResponse<TAttributes> : PatreonResponseBase<TAttributes, Empty>
+    {
+        public PatreonData<TAttributes> Data { get; set; }
+    }
+    
+    public class PatreonResponse<TAttributes, TRelationships> : PatreonResponseBase<TAttributes, TRelationships>
+        where TRelationships : IRelationship
+    {
+        public PatreonData<TAttributes, TRelationships> Data { get; set; }
+    }
     public class PatreonCollectionResponse<TAttributes, TRelationships> : PatreonResponseBase<TAttributes, TRelationships>
         where TRelationships : IRelationship
     {

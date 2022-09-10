@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using JsonAttr = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
-namespace PatreonClient.Requests.Builder
+namespace PatreonClient.RequestBuilder
 {
     internal class Field
     {

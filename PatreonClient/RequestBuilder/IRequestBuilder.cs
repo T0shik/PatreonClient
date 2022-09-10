@@ -1,9 +1,15 @@
 ﻿using System.Collections.Generic;
 using PatreonClient.Models;
-using PatreonClient.Responses;
 
-namespace PatreonClient.Requests.Builder
+namespace PatreonClient.RequestBuilder
 {
+    public interface IRequestBuilder<TResponse, TAttributes, TRelationships>
+        where TResponse : PatreonResponseBase<TAttributes, TRelationships>
+        where TRelationships : IRelationship
+    {
+        IPatreonRequest<TResponse, TAttributes, TRelationships> Build();
+    }
+    
     internal abstract class RequestBuilder<TResponse, TAttributes, TRelationships>
         : IRequestBuilder<TResponse, TAttributes, TRelationships>
         where TResponse : PatreonResponseBase<TAttributes, TRelationships>
@@ -26,8 +32,8 @@ namespace PatreonClient.Requests.Builder
         {
             var url = BuildUrl();
             return WithParams
-                       ? new ParameterizedPatreonRequest<TResponse, TAttributes, TRelationships>(url)
-                       : new PatreonRequest<TResponse, TAttributes, TRelationships>(url);
+                ? new ParameterizedPatreonRequest<TResponse, TAttributes, TRelationships>(url)
+                : new PatreonRequest<TResponse, TAttributes, TRelationships>(url);
         }
 
         private string BuildUrl()
@@ -50,4 +56,5 @@ namespace PatreonClient.Requests.Builder
             return string.Concat(Url, result);
         }
     }
+
 }

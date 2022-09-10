@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using PatreonClient.Internals;
 
 namespace PatreonClient.Models.Attributes
 {

@@ -12,7 +12,6 @@ using Moq.Protected;
 using PatreonClient.Models;
 using PatreonClient.Models.Attributes;
 using PatreonClient.Models.Relationships;
-using PatreonClient.Responses;
 using PatreonClient.Tests.Mocks;
 using Xunit;
 using MockFactory = PatreonClient.Tests.Mocks.MockFactory;

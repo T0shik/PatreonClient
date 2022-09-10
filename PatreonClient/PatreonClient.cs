@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 using PatreonClient.Models;
 using PatreonClient.Models.Attributes;
 using PatreonClient.Models.Relationships;
-using PatreonClient.Requests;
-using PatreonClient.Responses;
 
 namespace PatreonClient
 {

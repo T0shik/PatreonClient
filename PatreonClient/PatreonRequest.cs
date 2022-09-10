@@ -1,7 +1,6 @@
 ﻿using PatreonClient.Models;
-using PatreonClient.Responses;
 
-namespace PatreonClient.Requests
+namespace PatreonClient
 {
     public interface IPatreonRequest<TResponse, TAttribute, TRelationship>
         where TResponse : PatreonResponseBase<TAttribute, TRelationship>

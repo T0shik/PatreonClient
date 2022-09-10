@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using AutoFixture;
 using PatreonClient.Models;
-using PatreonClient.Responses;
 
 namespace PatreonClient.Tests.Mocks
 {

@@ -3,12 +3,24 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using PatreonClient.Internals;
 using PatreonClient.Models;
-using PatreonClient.Responses;
 
-namespace PatreonClient.Requests.Builder
+namespace PatreonClient.RequestBuilder
 {
-    internal class NestedRelationshipSelector<TResponse, TAttributes, TOrigin, TNext>
+    public interface INestedRelationshipSelector<TResponse, TAttributes, TOrigin, TNext>
+        : IRelationshipSelector<TResponse, TAttributes, TOrigin>
+        where TResponse : PatreonResponseBase<TAttributes, TOrigin>
+        where TOrigin : IRelationship
+        where TNext : IRelationship
+    {
+        public INestedRelationshipSelector<TResponse, TAttributes, TOrigin, TRel> ThenInclude<TAttr, TRel>(
+            Expression<Func<TNext, PatreonResponseBase<TAttr, TRel>>> relationshipSelector,
+            Expression<Func<TAttr, object>> fieldSelector = null)
+            where TRel : IRelationship;
+    }
+    
+       internal class NestedRelationshipSelector<TResponse, TAttributes, TOrigin, TNext>
         : RelationshipSelector<TResponse, TAttributes, TOrigin>,
             INestedRelationshipSelector<TResponse, TAttributes, TOrigin, TNext>
         where TResponse : PatreonResponseBase<TAttributes, TOrigin>
