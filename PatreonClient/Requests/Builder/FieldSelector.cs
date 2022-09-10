@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using PatreonClient.Models;
 using PatreonClient.Responses;
 
-namespace PatreonClient.RequestBuilders
+namespace PatreonClient.Requests.Builder
 {
     internal class FieldSelector<TResponse, TAttributes, TRelationships>
         : RequestBuilder<TResponse, TAttributes, TRelationships>,

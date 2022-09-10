@@ -109,7 +109,7 @@ namespace PatreonClient.Tests
                 Links = identity.Links
             });
 
-            var request = RequestBuilder.Identity.SelectFields().Build();
+            var request = PatreonRequestBuilder.Identity.SelectFields().Build();
 
             // Act
             var response = await patreonClient.GetAsync(request);

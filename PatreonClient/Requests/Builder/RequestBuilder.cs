@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using PatreonClient.Models;
-using PatreonClient.Requests;
 using PatreonClient.Responses;
 
-namespace PatreonClient.RequestBuilders
+namespace PatreonClient.Requests.Builder
 {
     internal abstract class RequestBuilder<TResponse, TAttributes, TRelationships>
         : IRequestBuilder<TResponse, TAttributes, TRelationships>

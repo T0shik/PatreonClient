@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using PatreonClient.Models;
 using PatreonClient.Responses;
 
-namespace PatreonClient.RequestBuilders
+namespace PatreonClient.Requests.Builder
 {
     public interface IFieldSelector<TResponse, TAttributes, TRelationships>
         : IRequestBuilder<TResponse, TAttributes, TRelationships>

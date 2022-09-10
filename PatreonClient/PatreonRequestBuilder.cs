@@ -1,12 +1,12 @@
 ﻿using PatreonClient.Models;
 using PatreonClient.Models.Attributes;
 using PatreonClient.Models.Relationships;
-using PatreonClient.RequestBuilders;
+using PatreonClient.Requests.Builder;
 using PatreonClient.Responses;
 
 namespace PatreonClient
 {
-    public static class RequestBuilder
+    public static class PatreonRequestBuilder
     {
         public static IFieldSelector<PatreonResponse<User, UserRelationships>, User, UserRelationships> Identity =>
             new FieldSelector<PatreonResponse<User, UserRelationships>, User, UserRelationships>("/api/oauth2/v2/identity");

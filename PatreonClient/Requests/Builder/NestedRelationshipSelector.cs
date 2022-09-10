@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 using PatreonClient.Models;
 using PatreonClient.Responses;
 
-namespace PatreonClient.RequestBuilders
+namespace PatreonClient.Requests.Builder
 {
     internal class NestedRelationshipSelector<TResponse, TAttributes, TOrigin, TNext>
         : RelationshipSelector<TResponse, TAttributes, TOrigin>,
