@@ -5,17 +5,16 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using PatreonClient.Models.Attributes;
 
-namespace PatreonClient.Models.Relationships
+namespace PatreonClient.Models.Relationships;
+
+public class UserRelationships : BaseRelationship
 {
-    public class UserRelationships : BaseRelationship
-    {
-        [JsonPropertyName("campaign")] public PatreonResponse<Campaign, CampaignRelationships> Campaign { get; set; }
+    [JsonPropertyName("campaign")] public PatreonResponse<Campaign, CampaignRelationships> Campaign { get; set; }
 
-        [JsonPropertyName("memberships")]
-        public PatreonCollectionResponse<Member, MemberRelationships> Memberships { get; set; }
+    [JsonPropertyName("memberships")]
+    public PatreonCollectionResponse<Member, MemberRelationships> Memberships { get; set; }
 
-        public override void AssignRelationship(IReadOnlyCollection<PatreonData> includes) =>
-            AssignDataAndRelationship(includes, Campaign)
-                .AssignCollectionAttributesAndRelationships(includes, Memberships);
-    }
+    public override void AssignRelationship(IReadOnlyCollection<PatreonData> includes) =>
+        AssignDataAndRelationship(includes, Campaign)
+            .AssignCollectionAttributesAndRelationships(includes, Memberships);
 }

@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace PatreonClient.Models
+namespace PatreonClient.Models;
+
+public interface IRelationship
 {
-    public interface IRelationship
-    {
-        void AssignRelationship(IReadOnlyCollection<PatreonData> includes);
-    }
+    void AssignRelationship(IReadOnlyCollection<PatreonData> includes);
 }

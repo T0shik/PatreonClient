@@ -1,10 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PatreonClient.Models
+namespace PatreonClient.Models;
+
+public class Meta
 {
-    public class Meta
-    {
-        [JsonPropertyName("pagination")]
-        public Pagination Pagination { get; set; }
-    }
+    [JsonPropertyName("pagination")]
+    public Pagination Pagination { get; set; }
 }

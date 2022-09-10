@@ -1,4 +1,1 @@
-﻿namespace PatreonClient.Models.Attributes
-{
-
-}
+﻿namespace PatreonClient.Models.Attributes;

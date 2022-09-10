@@ -1,10 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PatreonClient.Models
+namespace PatreonClient.Models;
+
+public class Pagination
 {
-    public class Pagination
-    {
-        [JsonPropertyName("total")] public int Total { get; set; }
-        [JsonPropertyName("cursors")] public Cursors Cursors { get; set; }
-    }
+    [JsonPropertyName("total")] public int Total { get; set; }
+    [JsonPropertyName("cursors")] public Cursors Cursors { get; set; }
 }

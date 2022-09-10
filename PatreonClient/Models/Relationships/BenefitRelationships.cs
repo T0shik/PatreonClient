@@ -3,19 +3,18 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using PatreonClient.Models.Attributes;
 
-namespace PatreonClient.Models.Relationships
+namespace PatreonClient.Models.Relationships;
+
+public class BenefitRelationships : BaseRelationship
 {
-    public class BenefitRelationships : BaseRelationship
-    {
-        [JsonPropertyName("campaign")] public PatreonResponse<Campaign, CampaignRelationships> Campaign { get; set; }
-        [JsonPropertyName("tiers")] public PatreonCollectionResponse<Tier, TierRelationships> Tiers { get; set; }
+    [JsonPropertyName("campaign")] public PatreonResponse<Campaign, CampaignRelationships> Campaign { get; set; }
+    [JsonPropertyName("tiers")] public PatreonCollectionResponse<Tier, TierRelationships> Tiers { get; set; }
 
-        [JsonPropertyName("deliverables")]
-        public PatreonCollectionResponse<Deliverable, DeliverableRelationships> Deliverables { get; set; }
+    [JsonPropertyName("deliverables")]
+    public PatreonCollectionResponse<Deliverable, DeliverableRelationships> Deliverables { get; set; }
 
-        public override void AssignRelationship(IReadOnlyCollection<PatreonData> includes) =>
-            AssignDataAndRelationship(includes, Campaign)
-                .AssignCollectionAttributesAndRelationships(includes, Tiers)
-                .AssignCollectionAttributesAndRelationships(includes, Deliverables);
-    }
+    public override void AssignRelationship(IReadOnlyCollection<PatreonData> includes) =>
+        AssignDataAndRelationship(includes, Campaign)
+            .AssignCollectionAttributesAndRelationships(includes, Tiers)
+            .AssignCollectionAttributesAndRelationships(includes, Deliverables);
 }
