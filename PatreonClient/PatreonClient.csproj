@@ -1,12 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
         <LangVersion>latest</LangVersion>
+        
+        <TargetFrameworks>netstandard2.1;net5.0;net6.0</TargetFrameworks>
+        <PackageId>Patreon</PackageId>
+        <Description>Patreon v2 Api Client</Description>
+        <VersionPrefix>0.0.1</VersionPrefix>
+        <PackageTags>patreon</PackageTags>
+        <Authors>Anton Wieslander</Authors>
+        <PackageProjectUrl>https://github.com/T0shik/PatreonClient</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/T0shik/PatreonClient</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
-
+    
     <ItemGroup>
-      <PackageReference Include="System.Text.Json" Version="4.7.1" />
+        <PackageReference Include="System.Text.Json" Version="6.0.5"/>
     </ItemGroup>
 
 </Project>
