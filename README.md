@@ -15,23 +15,20 @@ var response = await patreonClient.GetAsync(request);
 ```
 ### Requests
 ```csharp
-public static class PatreonRequestBuilder
-{
-    // get identity
-    PatreonRequestBuilder.Identity(builder => ...);
-    // get campaign by id
-    PatreonRequestBuilder.Campaign(builder => ...);
-    // get campaigns
-    PatreonRequestBuilder.Campaigns(builder => ...);
-    // get member by id
-    PatreonRequestBuilder.Member(builder => ...);
-    // get campaign members by campaign id
-    PatreonRequestBuilder.CampaignMembers(builder => ...);
-    // get post by id
-    PatreonRequestBuilder.Post(builder => ...);
-    // get posts by campaign id
-    PatreonRequestBuilder.CampaignPosts(builder => ...);
-}
+// get identity
+PatreonRequestBuilder.Identity(builder => ...);
+// get campaign by id
+PatreonRequestBuilder.Campaign(builder => ...);
+// get campaigns
+PatreonRequestBuilder.Campaigns(builder => ...);
+// get member by id
+PatreonRequestBuilder.Member(builder => ...);
+// get campaign members by campaign id
+PatreonRequestBuilder.CampaignMembers(builder => ...);
+// get post by id
+PatreonRequestBuilder.Post(builder => ...);
+// get posts by campaign id
+PatreonRequestBuilder.CampaignPosts(builder => ...);
 ```
 
 

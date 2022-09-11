@@ -13,7 +13,6 @@
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/T0shik/PatreonClient</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
     
     <ItemGroup>
