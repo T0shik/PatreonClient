@@ -2,21 +2,25 @@
 
     <PropertyGroup>
         <LangVersion>latest</LangVersion>
-        
-        <TargetFrameworks>netstandard2.1;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+
+        <TargetFrameworks>netstandard2.1;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
         <PackageId>Patreon</PackageId>
         <Description>Patreon v2 Api Client</Description>
-        <VersionPrefix>0.0.1</VersionPrefix>
+        <VersionPrefix>0.0.2</VersionPrefix>
         <PackageTags>patreon</PackageTags>
         <Authors>Anton Wieslander</Authors>
         <PackageProjectUrl>https://github.com/T0shik/PatreonClient</PackageProjectUrl>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/T0shik/PatreonClient</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
-    
+
     <ItemGroup>
-        <PackageReference Include="System.Text.Json" Version="7.0.1" />
+        <PackageReference Include="System.Text.Json" Version="7.0.1"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 </Project>
