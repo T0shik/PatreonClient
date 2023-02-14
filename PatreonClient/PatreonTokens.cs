@@ -7,8 +7,7 @@ namespace PatreonClient;
 
 public interface IPatreonTokens
 {
-    string AccessToken { get; }
-    string RefreshToken { get; }
+    Task<Tokens> GetTokens();
     Task RefreshTokens();
 }
 
@@ -28,22 +27,20 @@ public abstract class PatreonTokens : IPatreonTokens
         _sync = new SemaphoreSlim(1);
     }
 
-    protected abstract Tokens GetTokens();
+    public abstract Task<Tokens> GetTokens();
+    
     protected abstract Task SaveTokensAsync(Tokens response);
-
-    public string AccessToken => GetTokens().AccessToken;
-    public string RefreshToken => GetTokens().RefreshToken;
-
+    
     public virtual async Task RefreshTokens()
     {
-        var refreshToken = GetTokens().RefreshToken;
+        var tokens = await GetTokens();
         var available = await _sync.WaitAsync(0);
 
         if (available)
         {
             try
             {
-                var tokens = await _client.RefreshAccessTokenAsync(_config.ClientId, _config.ClientSecret, refreshToken);
+                tokens = await _client.RefreshAccessTokenAsync(_config.ClientId, _config.ClientSecret, tokens.RefreshToken);
                 await SaveTokensAsync(tokens);
             }
             finally
@@ -71,7 +68,7 @@ public class AccessTokenOnly : PatreonTokens
 
     private readonly Tokens _tokens;
 
-    protected override Tokens GetTokens() => _tokens;
+    public override Task<Tokens> GetTokens() => Task.FromResult(_tokens);
 
     public override Task RefreshTokens()
     {
@@ -100,7 +97,7 @@ public class InMemoryPatreonTokens : PatreonTokens
 
     private Tokens _tokens;
 
-    protected override Tokens GetTokens() => _tokens;
+    public override Task<Tokens> GetTokens() => Task.FromResult(_tokens);
 
     protected override Task SaveTokensAsync(Tokens response)
     {

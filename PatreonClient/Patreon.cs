@@ -119,14 +119,15 @@ public class Patreon
         var refreshAttempts = 0;
         while (true)
         {
-            var accessToken = _patreonTokens.AccessToken;
-            if (string.IsNullOrWhiteSpace(accessToken))
+            var tokens = await _patreonTokens.GetTokens();
+            if (string.IsNullOrWhiteSpace(tokens.AccessToken))
             {
                 await _patreonTokens.RefreshTokens();
+                tokens = await _patreonTokens.GetTokens();
             }
 
             var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Authorization = new("Bearer", _patreonTokens.AccessToken);
+            request.Headers.Authorization = new("Bearer", tokens.AccessToken);
 
             var response = await _client.SendAsync(request);
             if (response.StatusCode == HttpStatusCode.Unauthorized)
