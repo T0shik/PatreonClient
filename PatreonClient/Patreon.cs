@@ -15,28 +15,17 @@ namespace PatreonClient;
 public class Patreon
 {
     private readonly HttpClient _client;
+    private readonly IPatreonTokens _patreonTokens;
 
-    public Patreon(HttpClient client)
+    public Patreon(
+        HttpClient client,
+        IPatreonTokens patreonTokens
+    )
     {
         _client = client;
+        _client.BaseAddress = new("https://www.patreon.com");
+        _patreonTokens = patreonTokens;
     }
-
-    public Patreon(string apiKey)
-    {
-        _client = new()
-        {
-            BaseAddress = new("https://www.patreon.com"),
-            DefaultRequestHeaders =
-            {
-                Authorization =  new("Bearer", apiKey),
-            }
-        };
-    }
-
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
-    {
-        PropertyNameCaseInsensitive = true
-    };
 
     public async Task<PatreonResponse<TAttribute, TRelationship>> GetAsync<TAttribute, TRelationship>(
         PatreonRequest<PatreonResponse<TAttribute, TRelationship>> request
@@ -127,15 +116,38 @@ public class Patreon
 
     private async Task<string> SendAsync(string url)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
-        var response = await _client.SendAsync(request);
-        var content = await response.Content.ReadAsStringAsync();
-        if (response.StatusCode != HttpStatusCode.OK)
+        var refreshAttempts = 0;
+        while (true)
         {
-            throw new Exception($"Bad Request {content}");
-        }
+            var accessToken = _patreonTokens.AccessToken;
+            if (string.IsNullOrWhiteSpace(accessToken))
+            {
+                await _patreonTokens.RefreshTokens();
+            }
 
-        return content;
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new("Bearer", _patreonTokens.AccessToken);
+
+            var response = await _client.SendAsync(request);
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                if (refreshAttempts++ > 0)
+                {
+                    throw new FailedToRefreshAccessToken();
+                }
+
+                await _patreonTokens.RefreshTokens();
+                continue;
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new Exception($"Bad Request {content}");
+            }
+
+            return content;
+        }
     }
 
     private IEnumerable<PatreonData> AggregateIncludes(string content)
@@ -197,4 +209,9 @@ public class Patreon
             }
         }
     }
+
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true
+    };
 }
