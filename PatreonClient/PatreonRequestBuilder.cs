@@ -49,10 +49,10 @@ public static class PatreonRequestBuilder
         return new(builder.BuildUrl());
     }
 
-    public static PatreonRequest<string, PatreonCollectionResponse<Member, MemberRelationships>> CampaignPosts(Action<IFieldSelector<Member, MemberRelationships>> action)
+    public static PatreonRequest<string, PatreonCollectionResponse<Post, PostRelationships>> CampaignPosts(Action<IFieldSelector<Post, PostRelationships>> action)
     {
         var builder = new RequestBuilder("/api/oauth2/v2/campaigns/{0}/posts");
-        action(new FieldSelector<Member, MemberRelationships>(builder));
+        action(new FieldSelector<Post, PostRelationships>(builder));
         return new(builder.BuildUrl());
     }
 }
