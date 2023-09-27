@@ -16,4 +16,5 @@ public class Post
     [JsonPropertyName("embed_url")] public string EmbedUrl { get; set; }
     [JsonPropertyName("app_id")] public int? AppId { get; set; }
     [JsonPropertyName("app_status")] public string AppStatus { get; set; }
+    [JsonPropertyName("tiers")] public List<long>? Tiers { get; set; }
 }
