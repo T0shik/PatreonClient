@@ -185,3 +185,24 @@ var campaignMembersRequest = PatreonRequestBuilder.CampaignMembers(
           .ThenInclude(x => x.Benefits)
 );
 ```
+
+## Authenticating a Patron
+
+This example requires that the user is first directed to the following URL 
+(usually through a "Log in with Patreon" button).
+```
+https://www.patreon.com/oauth2/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}
+```
+Where CLIENT_ID is the ID of the creator's client app and REDIRECT_URI is the URI Patreon will call once the user 
+is authenticated.  
+See https://docs.patreon.com/#step-1-registering-your-client for more information.
+
+The `code` can then be extracted from the query string of the redirect URI and processed as follows to generate
+the usual `Tokens` object used in other examples. This token will have fewer permissions than your creator token,
+so it should only be used for actions specific to this user.
+
+```csharp
+using var httpClient = new HttpClient();
+var tokens = httpClient.GenerateAccessTokenAsync(clientId, clientSecret, code);
+// Store the tokens in a way that your PatreonTokens implementation will read from
+```

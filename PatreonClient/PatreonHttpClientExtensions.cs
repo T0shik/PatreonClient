@@ -7,7 +7,7 @@ namespace PatreonClient;
 
 public static class PatreonHttpClientExtensions
 {
-    public static async Task<Tokens> RefreshAccessTokenAsync(
+    public static Task<Tokens> RefreshAccessTokenAsync(
         this HttpClient client,
         string clientId,
         string clientSecret,
@@ -20,6 +20,27 @@ public static class PatreonHttpClientExtensions
                   $"&client_id={clientId}" +
                   $"&client_secret={clientSecret}";
 
+        return RequestTokens(client, uri);
+    }
+
+    public static Task<Tokens> GenerateAccessTokenAsync(
+        this HttpClient client,
+        string clientId,
+        string clientSecret,
+        string oneTimeCode
+    )
+    {
+        var uri = "https://www.patreon.com/api/oauth2/token" +
+                  "?grant_type=authorization_code" +
+                  $"&code={oneTimeCode}" +
+                  $"&client_id={clientId}" +
+                  $"&client_secret={clientSecret}";
+
+        return RequestTokens(client, uri);
+    }
+
+    private static async Task<Tokens> RequestTokens(HttpClient client, string uri)
+    {
         var responseMessage = await client.PostAsync(uri, null);
         if (!responseMessage.IsSuccessStatusCode) throw new FailedToRefreshAccessToken();
         
